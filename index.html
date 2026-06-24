@@ -19,6 +19,14 @@
     <div class="app-header">
         <div class="title">ADRENALINE SLOT MACHINE</div>
         <div class="subtitle">press spin and test your luck</div>
+
+        <div class="bet-panel">
+            Bet: <input id="betInput" type="number" value="10" min="1">
+        </div>
+
+        <div class="paytable">
+            ❌ 1 match = -2x bet | 😐 2 matches = -0.5x | 😶 3 matches = 0 | 🔥 4 matches = +0.5x | 💥 5 matches = +2x
+        </div>
     </div>
 
     <div class="app-slot">
@@ -48,7 +56,6 @@
     <div class="app-controls" id="controlsArea">
 
         <div class="controls-left">
-
             <button onclick="spin(this)" class="btn btn-warning btn-lg start-button">Spin</button>
 
             <div class="settings-dropdown">
@@ -62,7 +69,6 @@
                     <button onclick="setSound('random')">Random</button>
                 </div>
             </div>
-
         </div>
 
         <div class="player-panel">
