@@ -16,7 +16,7 @@ const CONFIG = {
     },
 
     texts: {
-        noCoinsTitle: "💀 NO COINS",
+        noCoinsTitle: "💀 У ТЕБЯ БОЛЬШЕ НЕТ КОИНОВ. ИДИ ПРОДАЙ ХАТУ МОЖЕТ ОТЫГРАЕШЬСЯ",
         lose: "💀 LOSE",
         neutral: "😐 BREAK EVEN",
         win: "🙂 WIN +0.5x",
