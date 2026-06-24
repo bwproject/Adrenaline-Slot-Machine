@@ -25,6 +25,66 @@ const MIN_SPIN = 10;
 const introSound = new Audio('./assets/0.mp3');
 let introPlayed = false;
 
+// =====================
+// GAME MODE SYSTEM
+// =====================
+const params = new URLSearchParams(window.location.search);
+const GAME_MODE = params.get('mode') || 'normal';
+
+function generateRowByMode() {
+    const count = cols.length;
+
+    // HARD MODE: mostly lose patterns
+    if (GAME_MODE === 'hard') {
+        const type = Math.random();
+
+        if (type < 0.6) {
+            // 0 matches
+            return Array.from({length: count}, () => getRandomIcon());
+        } else {
+            // 2 matches max
+            const symbol = getRandomIcon();
+            const row = [];
+            const matchCount = 2;
+
+            for (let i = 0; i < count; i++) {
+                row.push(getRandomIcon());
+            }
+
+            for (let i = 0; i < matchCount; i++) {
+                row[i] = symbol;
+            }
+
+            return row;
+        }
+    }
+
+    // STREAM MODE: always win (3-5 matches)
+    if (GAME_MODE === 'stream') {
+        const symbol = getRandomIcon();
+        const matchCount = 3 + Math.floor(Math.random() * 3); // 3-5
+        const row = [];
+
+        for (let i = 0; i < count; i++) {
+            row.push(symbol);
+        }
+
+        for (let i = matchCount; i < count; i++) {
+            row[i] = getRandomIcon();
+        }
+
+        return row;
+    }
+
+    // NORMAL MODE: 50/50 full win or random
+    if (Math.random() < 0.5) {
+        const symbol = getRandomIcon();
+        return Array.from({length: count}, () => symbol);
+    }
+
+    return Array.from({length: count}, () => getRandomIcon());
+}
+
 function setSound(mode) {
     soundMode = mode;
 }
@@ -96,7 +156,6 @@ window.addEventListener('DOMContentLoaded', function() {
     updateCoinsUI();
     updateBetUI();
 
-    // INTRO SOUND (play once)
     if (!introPlayed) {
         introSound.volume = 0.5;
         introSound.play().catch(() => {});
@@ -121,6 +180,26 @@ function setInitialItems() {
         }
 
         col.innerHTML = elms + firstThreeElms;
+    }
+}
+
+function setResult() {
+    const row = generateRowByMode();
+
+    for (let i = 0; i < cols.length; i++) {
+        const col = cols[i];
+        const icons = col.querySelectorAll('.icon img');
+        const symbol = row[i];
+
+        const middleIndex = icons.length - 2;
+
+        for (let x = 0; x < icons.length; x++) {
+            if (x === middleIndex) {
+                icons[x].src = 'items/' + symbol + '.png';
+            } else {
+                icons[x].src = 'items/' + getRandomIcon() + '.png';
+            }
+        }
     }
 }
 
@@ -188,18 +267,6 @@ function spin(elem) {
         updateStats();
 
     }.bind(elem), duration * 1000);
-}
-
-function setResult() {
-    for (let col of cols) {
-        let results = [getRandomIcon(), getRandomIcon(), getRandomIcon()];
-        let icons = col.querySelectorAll('.icon img');
-
-        for (let x = 0; x < 3; x++) {
-            icons[x].src = 'items/' + results[x] + '.png';
-            icons[(icons.length - 3) + x].src = 'items/' + results[x] + '.png';
-        }
-    }
 }
 
 function getMiddleRow() {
