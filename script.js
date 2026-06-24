@@ -96,7 +96,6 @@ window.addEventListener('DOMContentLoaded', function() {
     updateCoinsUI();
     updateBetUI();
 
-    // INTRO SOUND (play once)
     if (!introPlayed) {
         introSound.volume = 0.5;
         introSound.play().catch(() => {});
@@ -202,6 +201,29 @@ function setResult() {
     }
 }
 
+/**
+ * 🔥 НОВАЯ ЛОГИКА 0–5 совпадений
+ */
+function calculateResult(row) {
+    let map = {};
+
+    for (let s of row) {
+        map[s] = (map[s] || 0) + 1;
+    }
+
+    const max = Math.max(...Object.values(map));
+
+    let multiplier = 0;
+
+    if (max >= 5) multiplier = 2.0;
+    else if (max === 4) multiplier = 0.5;
+    else if (max === 3) multiplier = 0;
+    else if (max === 2) multiplier = -0.5;
+    else multiplier = -2.0;
+
+    return { multiplier, max };
+}
+
 function getMiddleRow() {
     let row = [];
 
@@ -215,21 +237,6 @@ function getMiddleRow() {
     }
 
     return row;
-}
-
-function calculateResult(row) {
-    let map = {};
-
-    for (let s of row) {
-        map[s] = (map[s] || 0) + 1;
-    }
-
-    let max = Math.max(...Object.values(map));
-
-    if (max < 3) return { multiplier: -1, max };
-    if (max === 3) return { multiplier: 0, max };
-    if (max === 4) return { multiplier: 0.5, max };
-    return { multiplier: 2, max };
 }
 
 function showResult(multiplier) {
