@@ -17,6 +17,7 @@ let soundUnlocked = false;
 let soundMode = "random";
 
 let coins = 100;
+const MIN_SPIN = 10;
 
 function updateCoinsUI() {
     const el = document.getElementById("coins");
@@ -92,12 +93,12 @@ function setInitialItems() {
 }
 
 function spin(elem) {
-    if (coins < 10) {
+    if (coins < MIN_SPIN) {
         showResult(-999);
         return;
     }
 
-    coins -= 10;
+    coins -= MIN_SPIN;
     updateCoinsUI();
 
     playSpinSound();
@@ -127,35 +128,32 @@ function spin(elem) {
         let row = getMiddleRow();
         let result = calculateResult(row);
 
-        let max = result.max;
+        const bet = MIN_SPIN;
+        const multiplier = result.multiplier;
 
-        // ECONOMY
-        if (max < 3) coins -= 5;
-        else if (max === 3) coins += 10;
-        else if (max === 4) coins += 15;
-        else if (max === 5) coins += 20;
+        coins += Math.floor(bet * multiplier);
 
         updateCoinsUI();
 
-        stats.payout += result.multiplier;
-        if (result.multiplier < 0) stats.losses++;
-        else stats.wins++;
+        stats.payout += multiplier;
+        if (multiplier > 0) stats.wins++;
+        else stats.losses++;
 
-        // 🎨 CASINO POLISH EFFECTS
         const appEl = document.getElementById('app');
         if (appEl) {
-            appEl.classList.remove('win','lose','jackpot');
+            appEl.classList.remove('win','lose','jackpot','neutral');
 
-            if (result.multiplier < 0) appEl.classList.add('lose');
-            else if (result.multiplier === 0.5) appEl.classList.add('win');
-            else if (result.multiplier === 2) appEl.classList.add('jackpot');
+            if (multiplier < 0) appEl.classList.add('lose');
+            else if (multiplier === 0) appEl.classList.add('neutral');
+            else if (multiplier === 0.5) appEl.classList.add('win');
+            else if (multiplier === 2) appEl.classList.add('jackpot');
 
             setTimeout(() => {
-                appEl.classList.remove('win','lose','jackpot');
+                appEl.classList.remove('win','lose','jackpot','neutral');
             }, 1200);
         }
 
-        showResult(result.multiplier);
+        showResult(multiplier);
         updateStats();
 
     }.bind(elem), duration * 1000);
@@ -225,10 +223,10 @@ function showResult(multiplier) {
     let text = "";
     let cls = "";
 
-    if (multiplier < 0) { text = "💀 YOU LOSE"; cls = "lose"; }
-    else if (multiplier === 0) { text = "😐 x0"; cls = "neutral"; }
-    else if (multiplier === 0.5) { text = "🙂 x0.5"; cls = "win"; }
-    else { text = "🔥 x2 JACKPOT"; cls = "jackpot"; }
+    if (multiplier < 0) { text = "💀 LOSE"; cls = "lose"; }
+    else if (multiplier === 0) { text = "😐 BREAK EVEN"; cls = "neutral"; }
+    else if (multiplier === 0.5) { text = "🙂 WIN +0.5x"; cls = "win"; }
+    else { text = "🔥 JACKPOT x2"; cls = "jackpot"; }
 
     el.innerHTML = `
         <div class="result-box ${cls}">
@@ -243,7 +241,6 @@ function showResult(multiplier) {
 function resetGame() {
     const el = document.getElementById('resultArea');
     if (el) el.innerHTML = "";
-
     const btn = document.querySelector('.start-button');
     if (btn) btn.style.display = "inline-block";
 }
