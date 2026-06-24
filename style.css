@@ -14,14 +14,11 @@ body {
     background-color: #444;
     margin: 0;
 
-    /* FIX: proper center layout */
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
 }
-
-/* APP WRAPPER */
 
 #app {
     display: flex;
@@ -34,27 +31,10 @@ body {
     padding: 20px;
 }
 
-/*
- * Style the orange box (legacy kept for compatibility)
- */
-
 .start-button {
     display: block;
     margin: 1em auto;
 }
-
-/* REMOVE OLD ABSOLUTE CENTERING (was breaking layout)
-#container {
-    background-color: #fd9b03;
-    padding: 50px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-left: -320px;
-    margin-top: -220px;
-}
-*/
 
 .window {
     position: relative;
@@ -64,7 +44,6 @@ body {
 
 .window::before {
     content: "";
-    clear: both;
     position: absolute;
     top: 0;
     left: 0;
@@ -75,7 +54,6 @@ body {
 
 .window::after {
     content: "";
-    clear: both;
     position: absolute;
     bottom: 0;
     left: 0;
@@ -90,10 +68,6 @@ body {
     box-shadow: 0 6px 4px -5px #eca654 inset;
 }
 
-/*
- * Reels and icon styling
- */
-
 .icon {
     width: 80px;
     height: var(--item-height);
@@ -105,7 +79,6 @@ body {
     overflow-y: hidden;
     width: 100px;
     float: left;
-    background-color: #eee;
     background-image: linear-gradient(#16013c, #741a5e, #430155, #16013c);
     height: calc(var(--item-height) * 3);
 }
@@ -146,19 +119,20 @@ body {
     border-radius: 100%;
 }
 
-#container.spinning .outer-col:nth-of-type(2) .col {
+/* FIX SPINNING ANIMATION (CRITICAL) */
+#app.spinning .outer-col:nth-of-type(2) .col {
     animation-delay: 0.01s;
 }
 
-#container.spinning .outer-col:nth-of-type(3) .col {
+#app.spinning .outer-col:nth-of-type(3) .col {
     animation-delay: 0.02s;
 }
 
-#container.spinning .outer-col:nth-of-type(4) .col {
+#app.spinning .outer-col:nth-of-type(4) .col {
     animation-delay: 0.03s;
 }
 
-#container.spinning .col {
+#app.spinning .col {
     animation-name: scroll;
     animation-iteration-count: 1;
     animation-timing-function: cubic-bezier(.65, .97, .72, 1);
@@ -168,13 +142,6 @@ body {
     to {
         transform: translateY(0);
     }
-}
-
-/* ===== HEADER GRADIENT TITLE ===== */
-
-.header {
-    text-align: center;
-    margin-bottom: 20px;
 }
 
 .title {
@@ -194,15 +161,12 @@ body {
     );
 
     background-size: 300% 300%;
-
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 
     animation: gradientMove 5s ease infinite;
 
-    text-shadow:
-        0 0 10px rgba(255, 200, 0, 0.25),
-        0 0 20px rgba(255, 120, 0, 0.15);
+    text-shadow: 0 0 10px rgba(255, 200, 0, 0.25), 0 0 20px rgba(255, 120, 0, 0.15);
 }
 
 .subtitle {
@@ -217,7 +181,6 @@ body {
     100% { background-position: 0% 50%; }
 }
 
-/* MOBILE */
 @media (max-width: 768px) {
     #app {
         transform: scale(0.85);
