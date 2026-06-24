@@ -24,6 +24,13 @@
     </div>
 
     <div class="app-slot">
+
+        <!-- ➜ NEW: arrows for middle row -->
+        <div class="middle-arrows">
+            <div class="arrow left">⬅</div>
+            <div class="arrow right">➡</div>
+        </div>
+
         <div class="window-border">
             <div class="window">
                 <div class="outer-spacer"></div>
@@ -53,7 +60,6 @@
 
             <button onclick="spin(this)" class="btn btn-warning btn-lg start-button">Крутить</button>
 
-            <!-- BET MOVED HERE -->
             <div class="bet-panel" style="margin-top:10px;">
                 Ставка: <span id="betValue">10</span>
                 <div>
@@ -62,7 +68,6 @@
                 </div>
             </div>
 
-            <!-- SOUND DROPDOWN -->
             <div style="margin-top:10px;">
                 <select class="form-select form-select-sm" onchange="setSound(this.value)">
                     <option value="random">Random</option>
@@ -75,7 +80,7 @@
 
         <div class="player-panel">
             <div>Игрок: User</div>
-            <div>Монет: <span id="coins">100</span></div>
+            <div>Монет: <span id="coins">1000</span></div>
         </div>
 
         <div id="resultArea"></div>
