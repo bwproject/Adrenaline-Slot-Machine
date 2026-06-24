@@ -15,54 +15,60 @@
 </head>
 <body>
 
-<div id="game-wrapper">
+<div id="app">
+
     <audio id="spinSound" src="assets/spin.mp3" preload="auto"></audio>
 
-    <div id="container">
-        <div class="header">
-            <div class="title">ADRENALINE SLOT MACHINE</div>
-            <div class="subtitle">press spin and test your luck</div>
-        </div>
+    <!-- HEADER -->
+    <div class="app-header">
+        <div class="title">ADRENALINE SLOT MACHINE</div>
+        <div class="subtitle">press spin and test your luck</div>
+    </div>
 
+    <!-- SLOT -->
+    <div class="app-slot">
         <div class="window-border">
             <div class="window">
                 <div class="outer-spacer"></div>
-                <div class="outer-col">
-                    <div class="col"></div>
-                </div>
+
+                <div class="outer-col"><div class="col"></div></div>
                 <div class="outer-spacer"></div>
-                <div class="outer-col">
-                    <div class="col"></div>
-                </div>
+
+                <div class="outer-col"><div class="col"></div></div>
                 <div class="outer-spacer"></div>
-                <div class="outer-col">
-                    <div class="col"></div>
-                </div>
+
+                <div class="outer-col"><div class="col"></div></div>
                 <div class="outer-spacer"></div>
-                <div class="outer-col">
-                    <div class="col"></div>
-                </div>
+
+                <div class="outer-col"><div class="col"></div></div>
                 <div class="outer-spacer"></div>
-                <div class="outer-col">
-                    <div class="col"></div>
-                </div>
+
+                <div class="outer-col"><div class="col"></div></div>
+
                 <div class="outer-spacer"></div>
             </div>
         </div>
-
-        <div class="controls">
-            <button onclick="spin(this)" class="btn btn-warning btn-lg start-button">
-                <i class="fa-solid fa-dharmachakra"></i> Spin
-            </button>
-
-            <button onclick="toggleSettings()" class="btn btn-dark settings-btn">
-                <i class="fa-solid fa-gear"></i>
-            </button>
-        </div>
     </div>
+
+    <!-- CONTROLS -->
+    <div class="app-controls" id="controlsArea">
+
+        <button onclick="spin(this)" class="btn btn-warning btn-lg start-button">
+            <i class="fa-solid fa-dharmachakra"></i> Spin
+        </button>
+
+        <button onclick="toggleSettings()" class="btn btn-dark settings-btn">
+            <i class="fa-solid fa-gear"></i>
+        </button>
+
+        <!-- RESULT HERE -->
+        <div id="resultArea"></div>
+
+    </div>
+
 </div>
 
-<!-- SETTINGS PANEL -->
+<!-- SETTINGS -->
 <div id="settingsPanel" class="settings-panel hidden">
     <h3>⚙️ Settings</h3>
 
