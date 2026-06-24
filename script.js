@@ -16,6 +16,34 @@ const COLUMN_SPINNING_DURATION = 0.3;
 
 var cols;
 
+const spinSound = document.getElementById('spinSound');
+let soundUnlocked = false;
+
+function playSpinSound() {
+    if (!spinSound) return;
+
+    spinSound.volume = 0.4;
+    spinSound.loop = true;
+
+    if (!soundUnlocked) {
+        spinSound.play().then(() => {
+            spinSound.pause();
+            spinSound.currentTime = 0;
+            soundUnlocked = true;
+        }).catch(() => {});
+        return;
+    }
+
+    spinSound.currentTime = 0;
+    spinSound.play().catch(() => {});
+}
+
+function stopSpinSound() {
+    if (!spinSound) return;
+
+    spinSound.pause();
+    spinSound.currentTime = 0;
+}
 
 window.addEventListener('DOMContentLoaded', function(event) {
     cols = document.querySelectorAll('.col');
@@ -37,49 +65,38 @@ function setInitialItems() {
             let item = '<div class="icon" data-item="' + icon + '"><img src="items/' + icon + '.png"></div>';
             elms += item;
 
-            if (x < 3) firstThreeElms += item; // Backup the first three items because the last three must be the same
+            if (x < 3) firstThreeElms += item;
         }
         col.innerHTML = elms + firstThreeElms;
     }
 }
 
-/**
- * Called when the start-button is pressed.
- *
- * @param elem The button itself
- */
 function spin(elem) {
+    playSpinSound();
+
     let duration = BASE_SPINNING_DURATION + randomDuration();
 
-    for (let col of cols) { // set the animation duration for each column
+    for (let col of cols) {
         duration += COLUMN_SPINNING_DURATION + randomDuration();
         col.style.animationDuration = duration + "s";
     }
 
-    // disable the start-button
     elem.setAttribute('disabled', true);
 
-    // set the spinning class so the css animation starts to play
     document.getElementById('container').classList.add('spinning');
 
-    // set the result delayed
-    // this would be the right place to request the combination from the server
     window.setTimeout(setResult, BASE_SPINNING_DURATION * 1000 / 2);
 
     window.setTimeout(function () {
-        // after the spinning is done, remove the class and enable the button again
+        stopSpinSound();
         document.getElementById('container').classList.remove('spinning');
         elem.removeAttribute('disabled');
     }.bind(elem), duration * 1000);
 }
 
-/**
- * Sets the result items at the beginning and the end of the columns
- */
 function setResult() {
     for (let col of cols) {
 
-        // generate 3 random items
         let results = [
             getRandomIcon(),
             getRandomIcon(),
@@ -87,7 +104,7 @@ function setResult() {
         ];
 
         let icons = col.querySelectorAll('.icon img');
-        // replace the first and last three items of each column with the generated items
+
         for (let x = 0; x < 3; x++) {
             icons[x].setAttribute('src', 'items/' + results[x] + '.png');
             icons[(icons.length - 3) + x].setAttribute('src', 'items/' + results[x] + '.png');
@@ -99,9 +116,6 @@ function getRandomIcon() {
     return ICONS[Math.floor(Math.random() * ICONS.length)];
 }
 
-/**
- * @returns {number} 0.00 to 0.09 inclusive
- */
 function randomDuration() {
     return Math.floor(Math.random() * 10) / 100;
 }
