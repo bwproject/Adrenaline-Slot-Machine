@@ -1,5 +1,5 @@
 const ICONS = [
-    'apple', 'apricot', 'banana', 'big_win', 'cherry', 'grapes', 'lemon', 'lucky_seven', 'orange', 'pear', 'strawberry', 'watermelon',
+    '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13',
 ];
 
 /**
