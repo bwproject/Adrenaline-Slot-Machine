@@ -3,7 +3,7 @@ const ICONS = [
 ];
 
 const BASE_SPINNING_DURATION = 2.7;
-const COLUMN_SPINNING_DURATION = 0.3;
+const COLUMN_SPINNING_DURATION = 0.35;
 
 let cols;
 
@@ -34,7 +34,19 @@ function getRandomIcon() {
 }
 
 function randomDuration() {
-    return Math.floor(Math.random() * 10) / 100;
+    return Math.floor(Math.random() * 12) / 100;
+}
+
+// More natural easing per reel stop (casino inertia feel)
+function getReelDelay(i) {
+    const base = BASE_SPINNING_DURATION;
+    const stagger = i * COLUMN_SPINNING_DURATION;
+
+    // add inertia randomness + slight slowdown curve
+    const inertia = Math.pow(i + 1, 1.15) * 0.08;
+    const jitter = (Math.random() * 0.15);
+
+    return (base + stagger + inertia + jitter) * 1000;
 }
 
 function generateRowByMode() {
@@ -108,6 +120,12 @@ function finalizeColumn(colIndex) {
     for (let i = 0; i < icons.length; i++) {
         icons[i].src = 'items/' + symbol + '.png';
     }
+
+    // small bounce visual effect per reel stop
+    col.style.transform = "translateY(0) scale(1.02)";
+    setTimeout(() => {
+        col.style.transform = "translateY(0) scale(1)";
+    }, 120);
 }
 
 window.addEventListener('DOMContentLoaded', function() {
@@ -158,13 +176,13 @@ function spin(elem) {
     const app = document.getElementById('app');
     if (app) app.classList.add('spinning');
 
-    // IMPORTANT: result already known
     const row = pendingRow;
 
     let totalDelay = 0;
 
     for (let i = 0; i < cols.length; i++) {
-        const delay = (BASE_SPINNING_DURATION + i * COLUMN_SPINNING_DURATION + randomDuration()) * 1000;
+        const delay = getReelDelay(i);
+
         totalDelay = Math.max(totalDelay, delay);
 
         setTimeout(() => {
