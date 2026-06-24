@@ -4,6 +4,43 @@ const BASE_SPINNING_DURATION = 2.7;
 const COLUMN_SPINNING_DURATION = 0.3;
 
 var cols;
+let audioCtx;
+
+function initAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+}
+
+function playTone(freq, time = 0.08, type = "sine") {
+  if (!audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  osc.type = type;
+  osc.frequency.value = freq;
+  gain.gain.value = 0.05;
+
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc.start();
+  osc.stop(audioCtx.currentTime + time);
+}
+
+function soundSpin() {
+  playTone(120, 0.05);
+}
+
+function soundStop() {
+  playTone(220, 0.08);
+}
+
+function soundWin() {
+  playTone(520, 0.1);
+  setTimeout(() => playTone(660, 0.1), 120);
+  setTimeout(() => playTone(880, 0.15), 240);
+}
 
 window.addEventListener('DOMContentLoaded', () => {
   cols = document.querySelectorAll('.col');
@@ -34,6 +71,9 @@ function setInitialItems() {
 }
 
 function spin(elem) {
+  initAudio();
+  soundSpin();
+
   let duration = BASE_SPINNING_DURATION + randomDuration();
 
   for (let col of cols) {
@@ -49,6 +89,12 @@ function spin(elem) {
   window.setTimeout(() => {
     document.getElementById('container').classList.remove('spinning');
     elem.removeAttribute('disabled');
+
+    soundStop();
+
+    let win = checkWin();
+    if (win) soundWin();
+
   }, duration * 1000);
 }
 
@@ -67,6 +113,27 @@ function setResult() {
       icons[(icons.length - 3) + x].src = results[x];
     }
   }
+}
+
+function checkWin() {
+  let grid = [];
+
+  document.querySelectorAll('.col').forEach(col => {
+    let imgs = col.querySelectorAll('.icon img');
+    grid.push([
+      imgs[0].src,
+      imgs[1].src,
+      imgs[2].src
+    ]);
+  });
+
+  for (let row = 0; row < 3; row++) {
+    let first = grid[0][row];
+    let win = grid.every(col => col[row] === first);
+    if (win) return true;
+  }
+
+  return false;
 }
 
 function getRandomIcon() {
