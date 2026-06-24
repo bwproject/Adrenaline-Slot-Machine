@@ -1,5 +1,5 @@
 const ICONS = [
-    '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13',
+    '1','2','3','4','5','6','7','8','9','10','11','12','13'
 ];
 
 const BASE_SPINNING_DURATION = 2.7;
@@ -16,6 +16,14 @@ const spinSounds = [
 let soundUnlocked = false;
 let soundMode = "random";
 
+// 💰 COINS SYSTEM
+let coins = 100;
+
+function updateCoinsUI() {
+    const el = document.getElementById("coins");
+    if (el) el.textContent = coins;
+}
+
 // STATS
 const stats = {
     totalSpins: 0,
@@ -28,21 +36,12 @@ const stats = {
     }
 };
 
-function toggleSettings() {
-    const panel = document.getElementById('settingsPanel');
-    if (panel) panel.classList.toggle('hidden');
-}
-
 function playSpinSound() {
     let sound;
 
-    if (soundMode === "sound1") {
-        sound = spinSounds[0];
-    } else if (soundMode === "sound2") {
-        sound = spinSounds[1];
-    } else {
-        sound = spinSounds[Math.floor(Math.random() * spinSounds.length)];
-    }
+    if (soundMode === "sound1") sound = spinSounds[0];
+    else if (soundMode === "sound2") sound = spinSounds[1];
+    else sound = spinSounds[Math.floor(Math.random() * spinSounds.length)];
 
     sound.volume = 0.4;
     sound.loop = true;
@@ -71,19 +70,13 @@ window.addEventListener('DOMContentLoaded', function() {
     cols = document.querySelectorAll('.col');
     setInitialItems();
     updateStats();
-
-    const select = document.getElementById('soundMode');
-    if (select) {
-        select.addEventListener('change', (e) => {
-            soundMode = e.target.value;
-        });
-    }
+    updateCoinsUI();
 });
 
 function setInitialItems() {
     let baseItemAmount = 40;
 
-    for (let i = 0; i < cols.length; ++i) {
+    for (let i = 0; i < cols.length; i++) {
         let col = cols[i];
         let amountOfItems = baseItemAmount + (i * 3);
         let elms = '';
@@ -93,14 +86,22 @@ function setInitialItems() {
             let icon = getRandomIcon();
             let item = '<div class="icon" data-item="' + icon + '"><img src="items/' + icon + '.png"></div>';
             elms += item;
-
             if (x < 3) firstThreeElms += item;
         }
+
         col.innerHTML = elms + firstThreeElms;
     }
 }
 
 function spin(elem) {
+    if (coins < 10) {
+        showResult(-999);
+        return;
+    }
+
+    coins -= 10;
+    updateCoinsUI();
+
     playSpinSound();
 
     elem.style.display = "none";
@@ -128,8 +129,17 @@ function spin(elem) {
         let row = getMiddleRow();
         let result = calculateResult(row);
 
-        stats.payout += result.multiplier;
+        // 🎰 ECONOMY RULES
+        let max = result.max;
 
+        if (max < 3) coins -= 5;
+        else if (max === 3) coins += 10;
+        else if (max === 4) coins += 15;
+        else if (max === 5) coins += 20;
+
+        updateCoinsUI();
+
+        stats.payout += result.multiplier;
         if (result.multiplier < 0) stats.losses++;
         else stats.wins++;
 
@@ -150,8 +160,8 @@ function setResult() {
         let icons = col.querySelectorAll('.icon img');
 
         for (let x = 0; x < 3; x++) {
-            icons[x].setAttribute('src', 'items/' + results[x] + '.png');
-            icons[(icons.length - 3) + x].setAttribute('src', 'items/' + results[x] + '.png');
+            icons[x].src = 'items/' + results[x] + '.png';
+            icons[(icons.length - 3) + x].src = 'items/' + results[x] + '.png';
         }
     }
 }
@@ -180,10 +190,10 @@ function calculateResult(row) {
 
     let max = Math.max(...Object.values(map));
 
-    if (max < 3) return { multiplier: -1 };
-    if (max === 3) return { multiplier: 0 };
-    if (max === 4) return { multiplier: 0.5 };
-    return { multiplier: 2 };
+    if (max < 3) return { multiplier: -1, max };
+    if (max === 3) return { multiplier: 0, max };
+    if (max === 4) return { multiplier: 0.5, max };
+    return { multiplier: 2, max };
 }
 
 function showResult(multiplier) {
@@ -192,6 +202,16 @@ function showResult(multiplier) {
 
     let text = "";
     let cls = "";
+
+    if (multiplier === -999) {
+        el.innerHTML = `
+            <div class="result-box lose">
+                <h2>💀 NO COINS</h2>
+                <button onclick="resetGame()" class="btn btn-warning">Restart</button>
+            </div>
+        `;
+        return;
+    }
 
     if (multiplier < 0) { text = "💀 YOU LOSE"; cls = "lose"; }
     else if (multiplier === 0) { text = "😐 x0"; cls = "neutral"; }
