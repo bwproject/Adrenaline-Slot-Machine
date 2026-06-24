@@ -3,8 +3,12 @@ const ICONS = Array.from({ length: 13 }, (_, i) => `items/${i + 1}.jpg`);
 const BASE_SPINNING_DURATION = 2.7;
 const COLUMN_SPINNING_DURATION = 0.3;
 
-var cols;
+let cols;
+
 let audioCtx;
+let speeds = [];
+let positions = [];
+let running = false;
 
 function initAudio() {
   if (!audioCtx) {
@@ -14,6 +18,7 @@ function initAudio() {
 
 function playTone(freq, time = 0.08, type = "sine") {
   if (!audioCtx) return;
+
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
 
@@ -28,14 +33,8 @@ function playTone(freq, time = 0.08, type = "sine") {
   osc.stop(audioCtx.currentTime + time);
 }
 
-function soundSpin() {
-  playTone(120, 0.05);
-}
-
-function soundStop() {
-  playTone(220, 0.08);
-}
-
+function soundSpin() { playTone(120, 0.05); }
+function soundStop() { playTone(220, 0.08); }
 function soundWin() {
   playTone(520, 0.1);
   setTimeout(() => playTone(660, 0.1), 120);
@@ -44,6 +43,10 @@ function soundWin() {
 
 window.addEventListener('DOMContentLoaded', () => {
   cols = document.querySelectorAll('.col');
+
+  speeds = Array(cols.length).fill(0);
+  positions = Array(cols.length).fill(0);
+
   setInitialItems();
 });
 
@@ -59,7 +62,6 @@ function setInitialItems() {
 
     for (let x = 0; x < amountOfItems; x++) {
       let icon = getRandomIcon();
-
       let item = `<div class="icon" data-item="${icon}"><img src="${icon}" />`;
 
       elms += item;
@@ -71,31 +73,65 @@ function setInitialItems() {
 }
 
 function spin(elem) {
+  if (running) return;
+  running = true;
+
   initAudio();
   soundSpin();
 
-  let duration = BASE_SPINNING_DURATION + randomDuration();
-
-  for (let col of cols) {
-    duration += COLUMN_SPINNING_DURATION + randomDuration();
-    col.style.animationDuration = duration + 's';
-  }
-
-  elem.setAttribute('disabled', true);
+  elem.disabled = true;
   document.getElementById('container').classList.add('spinning');
 
-  window.setTimeout(setResult, (BASE_SPINNING_DURATION * 1000) / 2);
+  speeds = speeds.map(() => 35 + Math.random() * 25);
 
-  window.setTimeout(() => {
-    document.getElementById('container').classList.remove('spinning');
-    elem.removeAttribute('disabled');
+  let stopTimes = [1200, 1700, 2200, 2700, 3200];
 
+  stopTimes.forEach((t, i) => setTimeout(() => stopReel(i), t));
+
+  requestAnimationFrame(updateReels);
+}
+
+function updateReels() {
+  if (!running) return;
+
+  const itemHeight = 100;
+
+  cols.forEach((col, i) => {
+    positions[i] += speeds[i];
+
+    if (positions[i] > itemHeight * 3) positions[i] = 0;
+
+    col.style.transform = `translateY(${positions[i]}px)`;
+  });
+
+  requestAnimationFrame(updateReels);
+}
+
+function stopReel(i) {
+  speeds[i] *= 0.2;
+
+  setTimeout(() => {
+    speeds[i] = 0;
     soundStop();
 
-    let win = checkWin();
-    if (win) soundWin();
+    if (speeds.every(s => s === 0)) {
+      finishSpin();
+    }
+  }, 350);
+}
 
-  }, duration * 1000);
+function finishSpin() {
+  running = false;
+
+  document.getElementById('container').classList.remove('spinning');
+
+  setResult();
+
+  let win = checkWin();
+  if (win) soundWin();
+
+  const btn = document.querySelector('.start-button');
+  if (btn) btn.disabled = false;
 }
 
 function setResult() {
@@ -109,8 +145,8 @@ function setResult() {
     let icons = col.querySelectorAll('.icon img');
 
     for (let x = 0; x < 3; x++) {
-      icons[x].src = results[x];
-      icons[(icons.length - 3) + x].src = results[x];
+      if (icons[x]) icons[x].src = results[x];
+      if (icons[(icons.length - 3) + x]) icons[(icons.length - 3) + x].src = results[x];
     }
   }
 }
@@ -129,8 +165,7 @@ function checkWin() {
 
   for (let row = 0; row < 3; row++) {
     let first = grid[0][row];
-    let win = grid.every(col => col[row] === first);
-    if (win) return true;
+    if (grid.every(col => col[row] === first)) return true;
   }
 
   return false;
