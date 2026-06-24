@@ -1,3 +1,33 @@
+// ========================
+// 🎰 GAME CONFIG (EDIT HERE)
+// ========================
+
+const CONFIG = {
+    startCoins: 1000,
+    minBet: 50,
+
+    multipliers: {
+        5: 2.0,
+        4: 0.5,
+        3: 0,
+        2: -0.5,
+        1: -2.0,
+        0: -2.0
+    },
+
+    texts: {
+        noCoinsTitle: "💀 NO COINS",
+        lose: "💀 LOSE",
+        neutral: "😐 BREAK EVEN",
+        win: "🙂 WIN +0.5x",
+        jackpot: "🔥 JACKPOT x2",
+        restart: "Restart",
+        tryAgain: "Try Again"
+    }
+};
+
+// ========================
+
 const ICONS = [
     '1','2','3','4','5','6','7','8','9','10','11','12','13'
 ];
@@ -16,18 +46,18 @@ const spinSounds = [
 let soundUnlocked = false;
 let soundMode = "random";
 
-let coins = 100;
+// ========================
 
-let bet = 10;
-const MIN_SPIN = 10;
+let coins = CONFIG.startCoins;
+let bet = CONFIG.minBet;
 
 // INTRO SOUND
 const introSound = new Audio('./assets/0.mp3');
 let introPlayed = false;
 
-function setSound(mode) {
-    soundMode = mode;
-}
+// ========================
+// UI
+// ========================
 
 function updateCoinsUI() {
     const el = document.getElementById("coins");
@@ -42,11 +72,15 @@ function updateBetUI() {
 function changeBet(amount) {
     bet += amount;
 
-    if (bet < MIN_SPIN) bet = MIN_SPIN;
+    if (bet < CONFIG.minBet) bet = CONFIG.minBet;
     if (bet > coins) bet = coins;
 
     updateBetUI();
 }
+
+// ========================
+// STATS
+// ========================
 
 const stats = {
     totalSpins: 0,
@@ -58,6 +92,10 @@ const stats = {
         8:0,9:0,10:0,11:0,12:0,13:0
     }
 };
+
+// ========================
+// SOUND
+// ========================
 
 function playSpinSound() {
     let sound;
@@ -89,6 +127,10 @@ function stopSpinSound() {
     }
 }
 
+// ========================
+// INIT
+// ========================
+
 window.addEventListener('DOMContentLoaded', function() {
     cols = document.querySelectorAll('.col');
     setInitialItems();
@@ -102,6 +144,10 @@ window.addEventListener('DOMContentLoaded', function() {
         introPlayed = true;
     }
 });
+
+// ========================
+// SLOT SETUP
+// ========================
 
 function setInitialItems() {
     let baseItemAmount = 40;
@@ -122,6 +168,10 @@ function setInitialItems() {
         col.innerHTML = elms + firstThreeElms;
     }
 }
+
+// ========================
+// SPIN
+// ========================
 
 function spin(elem) {
     if (coins < bet) {
@@ -149,6 +199,7 @@ function spin(elem) {
     window.setTimeout(setResult, BASE_SPINNING_DURATION * 1000 / 2);
 
     window.setTimeout(function () {
+
         stopSpinSound();
 
         if (app) app.classList.remove('spinning');
@@ -189,6 +240,10 @@ function spin(elem) {
     }.bind(elem), duration * 1000);
 }
 
+// ========================
+// RESULT GENERATION
+// ========================
+
 function setResult() {
     for (let col of cols) {
         let results = [getRandomIcon(), getRandomIcon(), getRandomIcon()];
@@ -201,9 +256,10 @@ function setResult() {
     }
 }
 
-/**
- * 🔥 НОВАЯ ЛОГИКА 0–5 совпадений
- */
+// ========================
+// NEW RESULT LOGIC
+// ========================
+
 function calculateResult(row) {
     let map = {};
 
@@ -213,16 +269,14 @@ function calculateResult(row) {
 
     const max = Math.max(...Object.values(map));
 
-    let multiplier = 0;
-
-    if (max >= 5) multiplier = 2.0;
-    else if (max === 4) multiplier = 0.5;
-    else if (max === 3) multiplier = 0;
-    else if (max === 2) multiplier = -0.5;
-    else multiplier = -2.0;
+    const multiplier = CONFIG.multipliers[max] ?? -2.0;
 
     return { multiplier, max };
 }
+
+// ========================
+// ROW CHECK
+// ========================
 
 function getMiddleRow() {
     let row = [];
@@ -239,32 +293,58 @@ function getMiddleRow() {
     return row;
 }
 
+// ========================
+// UI RESULT
+// ========================
+
 function showResult(multiplier) {
     const el = document.getElementById('resultArea');
     if (!el) return;
 
     if (multiplier === -999) {
-        el.innerHTML = `<div class="result-box lose"><h2>💀 NO COINS</h2><button onclick="resetGame()" class="btn btn-warning">Restart</button></div>`;
+        el.innerHTML = `
+        <div class="result-box lose">
+            <h2>${CONFIG.texts.noCoinsTitle}</h2>
+            <button onclick="resetGame()" class="btn btn-warning">
+                ${CONFIG.texts.restart}
+            </button>
+        </div>`;
         return;
     }
 
     let text = "";
     let cls = "";
 
-    if (multiplier < 0) { text = "💀 LOSE"; cls = "lose"; }
-    else if (multiplier === 0) { text = "😐 BREAK EVEN"; cls = "neutral"; }
-    else if (multiplier === 0.5) { text = "🙂 WIN +0.5x"; cls = "win"; }
-    else { text = "🔥 JACKPOT x2"; cls = "jackpot"; }
+    if (multiplier < 0) {
+        text = CONFIG.texts.lose;
+        cls = "lose";
+    }
+    else if (multiplier === 0) {
+        text = CONFIG.texts.neutral;
+        cls = "neutral";
+    }
+    else if (multiplier === 0.5) {
+        text = CONFIG.texts.win;
+        cls = "win";
+    }
+    else {
+        text = CONFIG.texts.jackpot;
+        cls = "jackpot";
+    }
 
     el.innerHTML = `
         <div class="result-box ${cls}">
             <h2>${text}</h2>
-            <div class="result-buttons">
-                <button onclick="resetGame()" class="btn btn-warning">Try Again</button>
-            </div>
+            <button onclick="resetGame()" class="btn btn-warning">
+                ${CONFIG.texts.tryAgain}
+            </button>
         </div>
     `;
 }
+
+// ========================
+// RESET
+// ========================
 
 function resetGame() {
     const el = document.getElementById('resultArea');
@@ -272,6 +352,10 @@ function resetGame() {
     const btn = document.querySelector('.start-button');
     if (btn) btn.style.display = "inline-block";
 }
+
+// ========================
+// STATS UI
+// ========================
 
 function updateStats() {
     const el = document.getElementById('statsContent');
@@ -290,6 +374,10 @@ function updateStats() {
         ${symbols}
     `;
 }
+
+// ========================
+// HELPERS
+// ========================
 
 function getRandomIcon() {
     return ICONS[Math.floor(Math.random() * ICONS.length)];
