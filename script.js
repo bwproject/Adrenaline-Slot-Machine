@@ -18,9 +18,12 @@ let soundMode = "random";
 
 let coins = 100;
 
-// BET SYSTEM
 let bet = 10;
 const MIN_SPIN = 10;
+
+function setSound(mode) {
+    soundMode = mode;
+}
 
 function updateCoinsUI() {
     const el = document.getElementById("coins");
