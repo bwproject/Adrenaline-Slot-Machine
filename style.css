@@ -26,9 +26,18 @@ body {
     align-items: center;
     justify-content: center;
     gap: 20px;
+
     width: 100%;
     max-width: 900px;
-    padding: 20px;
+    padding: 25px;
+
+    /* FINAL: casino square container */
+    background: linear-gradient(145deg, #6b2f00, #c96a00);
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+
+    aspect-ratio: 1 / 1;
+    max-width: 92vmin;
 }
 
 .start-button {
