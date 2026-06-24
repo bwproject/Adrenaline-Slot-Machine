@@ -13,10 +13,29 @@
 body {
     background-color: #444;
     margin: 0;
+
+    /* FIX: proper center layout */
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* APP WRAPPER */
+
+#app {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+    max-width: 900px;
+    padding: 20px;
 }
 
 /*
- * Style the orange box
+ * Style the orange box (legacy kept for compatibility)
  */
 
 .start-button {
@@ -24,6 +43,7 @@ body {
     margin: 1em auto;
 }
 
+/* REMOVE OLD ABSOLUTE CENTERING (was breaking layout)
 #container {
     background-color: #fd9b03;
     padding: 50px;
@@ -34,6 +54,7 @@ body {
     margin-left: -320px;
     margin-top: -220px;
 }
+*/
 
 .window {
     position: relative;
@@ -198,14 +219,9 @@ body {
 
 /* MOBILE */
 @media (max-width: 768px) {
-    #container {
-        transform: scale(0.75);
+    #app {
+        transform: scale(0.85);
         transform-origin: center;
-        margin: 0;
-        left: 50%;
-        top: 50%;
-        position: absolute;
-        translate: -50% -50%;
     }
 
     .outer-col {
