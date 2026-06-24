@@ -31,13 +31,48 @@ body {
     max-width: 900px;
     padding: 25px;
 
-    /* FINAL: casino square container */
     background: linear-gradient(145deg, #6b2f00, #c96a00);
     border-radius: 24px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
 
     aspect-ratio: 1 / 1;
     max-width: 92vmin;
+}
+
+/* WIN / LOSE / JACKPOT EFFECTS */
+
+#app.win {
+    box-shadow: 0 0 40px rgba(0,255,100,0.6), 0 20px 60px rgba(0,0,0,0.6);
+    animation: winPulse 0.6s ease-in-out;
+}
+
+#app.lose {
+    box-shadow: 0 0 40px rgba(255,0,0,0.5), 0 20px 60px rgba(0,0,0,0.6);
+    animation: shake 0.4s ease;
+}
+
+#app.jackpot {
+    box-shadow: 0 0 60px rgba(255,215,0,0.8), 0 20px 60px rgba(0,0,0,0.6);
+    animation: jackpotFlash 1s ease-in-out;
+}
+
+@keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    50% { transform: translateX(6px); }
+    75% { transform: translateX(-3px); }
+}
+
+@keyframes winPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+}
+
+@keyframes jackpotFlash {
+    0% { filter: brightness(1); }
+    50% { filter: brightness(1.4); }
+    100% { filter: brightness(1); }
 }
 
 .start-button {
@@ -128,18 +163,9 @@ body {
     border-radius: 100%;
 }
 
-/* FIX SPINNING ANIMATION (CRITICAL) */
-#app.spinning .outer-col:nth-of-type(2) .col {
-    animation-delay: 0.01s;
-}
-
-#app.spinning .outer-col:nth-of-type(3) .col {
-    animation-delay: 0.02s;
-}
-
-#app.spinning .outer-col:nth-of-type(4) .col {
-    animation-delay: 0.03s;
-}
+#app.spinning .outer-col:nth-of-type(2) .col { animation-delay: 0.01s; }
+#app.spinning .outer-col:nth-of-type(3) .col { animation-delay: 0.02s; }
+#app.spinning .outer-col:nth-of-type(4) .col { animation-delay: 0.03s; }
 
 #app.spinning .col {
     animation-name: scroll;
@@ -148,9 +174,7 @@ body {
 }
 
 @keyframes scroll {
-    to {
-        transform: translateY(0);
-    }
+    to { transform: translateY(0); }
 }
 
 .title {
@@ -159,59 +183,27 @@ body {
     letter-spacing: 3px;
     text-transform: uppercase;
 
-    background: linear-gradient(
-        90deg,
-        #ffd36a,
-        #ff6a00,
-        #ff3cac,
-        #784ba0,
-        #2b86c5,
-        #ffd36a
-    );
-
+    background: linear-gradient(90deg,#ffd36a,#ff6a00,#ff3cac,#784ba0,#2b86c5,#ffd36a);
     background-size: 300% 300%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-
     animation: gradientMove 5s ease infinite;
 
     text-shadow: 0 0 10px rgba(255, 200, 0, 0.25), 0 0 20px rgba(255, 120, 0, 0.15);
 }
 
-.subtitle {
-    color: #fff;
-    opacity: 0.7;
-    font-size: 14px;
-}
+.subtitle { color:#fff; opacity:0.7; font-size:14px; }
 
 @keyframes gradientMove {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    0% { background-position:0% 50%; }
+    50% { background-position:100% 50%; }
+    100% { background-position:0% 50%; }
 }
 
-@media (max-width: 768px) {
-    #app {
-        transform: scale(0.85);
-        transform-origin: center;
-    }
-
-    .outer-col {
-        width: 70px;
-    }
-
-    .icon {
-        width: 60px;
-        height: 80px;
-    }
-
-    .window {
-        height: calc(3 * 80px);
-    }
-
-    .start-button {
-        width: 90%;
-        font-size: 20px;
-        padding: 12px;
-    }
+@media (max-width:768px) {
+    #app { transform: scale(0.85); transform-origin:center; }
+    .outer-col { width:70px; }
+    .icon { width:60px; height:80px; }
+    .window { height:calc(3 * 80px); }
+    .start-button { width:90%; font-size:20px; padding:12px; }
 }
