@@ -17,11 +17,28 @@ let soundUnlocked = false;
 let soundMode = "random";
 
 let coins = 100;
+
+// BET SYSTEM
+let bet = 10;
 const MIN_SPIN = 10;
 
 function updateCoinsUI() {
     const el = document.getElementById("coins");
     if (el) el.textContent = coins;
+}
+
+function updateBetUI() {
+    const el = document.getElementById("betValue");
+    if (el) el.textContent = bet;
+}
+
+function changeBet(amount) {
+    bet += amount;
+
+    if (bet < MIN_SPIN) bet = MIN_SPIN;
+    if (bet > coins) bet = coins;
+
+    updateBetUI();
 }
 
 const stats = {
@@ -70,6 +87,7 @@ window.addEventListener('DOMContentLoaded', function() {
     setInitialItems();
     updateStats();
     updateCoinsUI();
+    updateBetUI();
 });
 
 function setInitialItems() {
@@ -93,12 +111,12 @@ function setInitialItems() {
 }
 
 function spin(elem) {
-    if (coins < MIN_SPIN) {
+    if (coins < bet) {
         showResult(-999);
         return;
     }
 
-    coins -= MIN_SPIN;
+    coins -= bet;
     updateCoinsUI();
 
     playSpinSound();
@@ -128,14 +146,13 @@ function spin(elem) {
         let row = getMiddleRow();
         let result = calculateResult(row);
 
-        const bet = MIN_SPIN;
         const multiplier = result.multiplier;
 
         coins += Math.floor(bet * multiplier);
-
         updateCoinsUI();
 
         stats.payout += multiplier;
+
         if (multiplier > 0) stats.wins++;
         else stats.losses++;
 
@@ -161,12 +178,7 @@ function spin(elem) {
 
 function setResult() {
     for (let col of cols) {
-        let results = [
-            getRandomIcon(),
-            getRandomIcon(),
-            getRandomIcon()
-        ];
-
+        let results = [getRandomIcon(), getRandomIcon(), getRandomIcon()];
         let icons = col.querySelectorAll('.icon img');
 
         for (let x = 0; x < 3; x++) {
@@ -211,12 +223,7 @@ function showResult(multiplier) {
     if (!el) return;
 
     if (multiplier === -999) {
-        el.innerHTML = `
-            <div class="result-box lose">
-                <h2>💀 NO COINS</h2>
-                <button onclick="resetGame()" class="btn btn-warning">Restart</button>
-            </div>
-        `;
+        el.innerHTML = `<div class="result-box lose"><h2>💀 NO COINS</h2><button onclick="resetGame()" class="btn btn-warning">Restart</button></div>`;
         return;
     }
 
