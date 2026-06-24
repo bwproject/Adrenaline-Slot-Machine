@@ -7,13 +7,25 @@ const COLUMN_SPINNING_DURATION = 0.3;
 
 var cols;
 
-// FIX: use relative paths (important for GitHub Pages)
+// AUDIO
 const spinSounds = [
     new Audio('./assets/spin.mp3'),
     new Audio('./assets/spin2.mp3')
 ];
 
 let soundUnlocked = false;
+
+// STATS
+const stats = {
+    totalSpins: 0,
+    wins: 0,
+    losses: 0,
+    payout: 0,
+    symbols: {
+        1:0,2:0,3:0,4:0,5:0,6:0,7:0,
+        8:0,9:0,10:0,11:0,12:0,13:0
+    }
+};
 
 function playSpinSound() {
     const sound = spinSounds[Math.floor(Math.random() * spinSounds.length)];
@@ -41,9 +53,10 @@ function stopSpinSound() {
     }
 }
 
-window.addEventListener('DOMContentLoaded', function(event) {
+window.addEventListener('DOMContentLoaded', function() {
     cols = document.querySelectorAll('.col');
     setInitialItems();
+    updateStats();
 });
 
 function setInitialItems() {
@@ -85,6 +98,21 @@ function spin(elem) {
         stopSpinSound();
         document.getElementById('container').classList.remove('spinning');
         elem.removeAttribute('disabled');
+
+        // AFTER SPIN EVALUATION
+        stats.totalSpins++;
+
+        let row = getMiddleRow();
+        let result = calculateResult(row);
+
+        stats.payout += result.multiplier;
+
+        if (result.multiplier < 0) stats.losses++;
+        else stats.wins++;
+
+        showResult(result.multiplier);
+        updateStats();
+
     }.bind(elem), duration * 1000);
 }
 
@@ -103,6 +131,83 @@ function setResult() {
             icons[(icons.length - 3) + x].setAttribute('src', 'items/' + results[x] + '.png');
         }
     }
+}
+
+function getMiddleRow() {
+    let row = [];
+
+    for (let col of cols) {
+        let icons = col.querySelectorAll('.icon img');
+        let middle = icons[icons.length - 2].getAttribute('src');
+        let symbol = middle.split('/').pop().replace('.png', '');
+
+        row.push(symbol);
+        stats.symbols[symbol]++;
+    }
+
+    return row;
+}
+
+function calculateResult(row) {
+    let map = {};
+
+    for (let s of row) {
+        map[s] = (map[s] || 0) + 1;
+    }
+
+    let max = Math.max(...Object.values(map));
+
+    if (max < 3) return { multiplier: -1 };
+    if (max === 3) return { multiplier: 0 };
+    if (max === 4) return { multiplier: 0.5 };
+    return { multiplier: 2 };
+}
+
+function showResult(multiplier) {
+    let text = "";
+    let cls = "";
+
+    if (multiplier < 0) { text = "💀 LOSE"; cls = "lose"; }
+    else if (multiplier === 0) { text = "😐 x0"; cls = "neutral"; }
+    else if (multiplier === 0.5) { text = "🙂 x0.5"; cls = "win"; }
+    else { text = "🔥 x2"; cls = "jackpot"; }
+
+    let modal = document.createElement('div');
+    modal.id = 'resultModal';
+
+    modal.innerHTML = `
+        <div class="result-box ${cls}">
+            <h1>${text}</h1>
+            <div class="result-buttons">
+                <button onclick="closeResult()" class="btn btn-secondary">Close</button>
+                <button onclick="spin(document.querySelector('.start-button')); closeResult();" class="btn btn-warning">Try Again</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+}
+
+function closeResult() {
+    let el = document.getElementById('resultModal');
+    if (el) el.remove();
+}
+
+function updateStats() {
+    const el = document.getElementById('statsContent');
+
+    let symbols = Object.entries(stats.symbols)
+        .map(([k,v]) => `${k}: ${v}`)
+        .join('<br>');
+
+    el.innerHTML = `
+        Spins: ${stats.totalSpins}<br>
+        Wins: ${stats.wins}<br>
+        Losses: ${stats.losses}<br>
+        Payout: ${stats.payout.toFixed(1)}x<br>
+        <hr>
+        ${symbols}
+    `;
 }
 
 function getRandomIcon() {
