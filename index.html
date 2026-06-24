@@ -4,10 +4,7 @@
     <meta charset="UTF-8">
     <title>Adrenaline Slot Machine</title>
 
-    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
     <link rel="stylesheet" href="./style.css">
@@ -19,13 +16,11 @@
 
     <audio id="spinSound" src="assets/spin.mp3" preload="auto"></audio>
 
-    <!-- HEADER -->
     <div class="app-header">
         <div class="title">ADRENALINE SLOT MACHINE</div>
         <div class="subtitle">press spin and test your luck</div>
     </div>
 
-    <!-- SLOT -->
     <div class="app-slot">
         <div class="window-border">
             <div class="window">
@@ -50,38 +45,35 @@
         </div>
     </div>
 
-    <!-- CONTROLS -->
     <div class="app-controls" id="controlsArea">
 
-        <button onclick="spin(this)" class="btn btn-warning btn-lg start-button">
-            <i class="fa-solid fa-dharmachakra"></i> Spin
-        </button>
+        <div class="controls-left">
 
-        <button onclick="toggleSettings()" class="btn btn-dark settings-btn">
-            <i class="fa-solid fa-gear"></i>
-        </button>
+            <button onclick="spin(this)" class="btn btn-warning btn-lg start-button">Spin</button>
 
-        <!-- RESULT HERE -->
+            <div class="settings-dropdown">
+                <button class="btn btn-dark settings-btn" onclick="toggleSettingsMenu()">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+
+                <div id="soundMenu" class="settings-menu hidden">
+                    <button onclick="setSound('sound1')">Sound 1</button>
+                    <button onclick="setSound('sound2')">Sound 2</button>
+                    <button onclick="setSound('random')">Random</button>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="player-panel">
+            <div>Player: Igor</div>
+            <div>Coins: <span id="coins">100</span></div>
+        </div>
+
         <div id="resultArea"></div>
 
     </div>
 
-</div>
-
-<!-- SETTINGS -->
-<div id="settingsPanel" class="settings-panel hidden">
-    <h3>⚙️ Settings</h3>
-
-    <label>
-        Sound mode:
-        <select id="soundMode">
-            <option value="sound1">Sound 1</option>
-            <option value="sound2">Sound 2</option>
-            <option value="random" selected>Random</option>
-        </select>
-    </label>
-
-    <button onclick="toggleSettings()" class="btn btn-secondary mt-3">Close</button>
 </div>
 
 </body>
