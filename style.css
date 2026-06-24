@@ -39,6 +39,55 @@ body {
     max-width: 92vmin;
 }
 
+/* ===== MODERN UI OVERRIDES ===== */
+
+.title {
+    font-size: 46px;
+    font-weight: 900;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+
+    background: linear-gradient(90deg,#fff,#ffd36a,#ff6a00,#ff3cac,#2b86c5,#fff);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientMove 5s ease infinite;
+
+    text-shadow: 0 0 20px rgba(255, 140, 0, 0.25);
+}
+
+.subtitle {
+    color:#fff;
+    opacity:0.75;
+    font-size:14px;
+    text-shadow: 0 2px 0 #000;
+}
+
+.player-panel,
+.bet-panel {
+    color:#fff;
+    font-weight:800;
+    text-shadow: 0 2px 0 #000;
+}
+
+.start-button {
+    min-width: 220px;
+    font-size: 22px;
+    font-weight: 900;
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 10px 25px rgba(0,0,0,0.5),
+        0 0 20px rgba(255,170,0,0.3);
+
+    text-shadow: 0 2px 0 #000;
+}
+
+.start-button:active {
+    transform: scale(0.96);
+}
+
 /* WIN / LOSE / JACKPOT EFFECTS */
 
 #app.win {
@@ -177,33 +226,33 @@ body {
     to { transform: translateY(0); }
 }
 
-.title {
-    font-size: 42px;
-    font-weight: 900;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-
-    background: linear-gradient(90deg,#ffd36a,#ff6a00,#ff3cac,#784ba0,#2b86c5,#ffd36a);
-    background-size: 300% 300%;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: gradientMove 5s ease infinite;
-
-    text-shadow: 0 0 10px rgba(255, 200, 0, 0.25), 0 0 20px rgba(255, 120, 0, 0.15);
-}
-
-.subtitle { color:#fff; opacity:0.7; font-size:14px; }
-
-@keyframes gradientMove {
-    0% { background-position:0% 50%; }
-    50% { background-position:100% 50%; }
-    100% { background-position:0% 50%; }
-}
-
+/* MOBILE FIX (disabled old scale, improved UI) */
 @media (max-width:768px) {
-    #app { transform: scale(0.85); transform-origin:center; }
-    .outer-col { width:70px; }
-    .icon { width:60px; height:80px; }
-    .window { height:calc(3 * 80px); }
-    .start-button { width:90%; font-size:20px; padding:12px; }
+    #app {
+        width: 95vw;
+        aspect-ratio: auto;
+        padding: 18px;
+    }
+
+    .title {
+        font-size: 28px;
+        text-align: center;
+    }
+
+    .outer-col {
+        width: 70px;
+    }
+
+    .icon {
+        width: 60px;
+        height: 80px;
+    }
+
+    .window {
+        height: calc(3 * 80px);
+    }
+
+    .start-button {
+        width: 100%;
+    }
 }
