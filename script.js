@@ -1,5 +1,5 @@
 // ========================
-// 🎰 GAME CONFIG (EDIT HERE)
+// 🎰 GAME CONFIG
 // ========================
 
 const CONFIG = {
@@ -16,13 +16,11 @@ const CONFIG = {
     },
 
     texts: {
-        noCoinsTitle: "💀 У ТЕБЯ БОЛЬШЕ НЕТ КОИНОВ. ИДИ ПРОДАЙ ХАТУ МОЖЕТ ОТЫГРАЕШЬСЯ",
+        noCoinsTitle: "💀 У ТЕБЯ БОЛЬШЕ НЕТ КОИНОВ",
         lose: "💀 LOSE",
         neutral: "😐 BREAK EVEN",
-        win: "🙂 WIN +0.5x",
-        jackpot: "🔥 JACKPOT x2",
-        restart: "Restart",
-        tryAgain: "НУЖЕН ДОДЕП"
+        win: "🙂 WIN",
+        jackpot: "🔥 JACKPOT",
     }
 };
 
@@ -34,6 +32,7 @@ const BASE_SPINNING_DURATION = 2.7;
 const COLUMN_SPINNING_DURATION = 0.3;
 
 let cols;
+let lastResults = [];
 
 let coins = CONFIG.startCoins;
 let bet = CONFIG.minBet;
@@ -42,8 +41,6 @@ const spinSounds = [
     new Audio('./assets/spin.mp3'),
     new Audio('./assets/spin2.mp3')
 ];
-
-let soundMode = "random";
 
 window.addEventListener('DOMContentLoaded', () => {
     cols = document.querySelectorAll('.col');
@@ -68,10 +65,7 @@ function changeBet(amount) {
 }
 
 function spin(btn) {
-    if (coins < bet) {
-        showResult(-999);
-        return;
-    }
+    if (coins < bet) return;
 
     coins -= bet;
     updateCoinsUI();
@@ -102,29 +96,35 @@ function spin(btn) {
     }, duration * 1000);
 }
 
+// ========================
+// 🎰 GRID LOGIC (5x5 FIX)
+// ========================
+
 function setInitialItems() {
     const ROWS = 5;
 
     for (let col of cols) {
         let html = "";
-        let buffer = "";
 
         for (let i = 0; i < 60; i++) {
             const icon = getRandomIcon();
-            const item = `<div class="icon"><img src="items/${icon}.png"></div>`;
-            html += item;
-            if (i < ROWS) buffer += item;
+            html += `<div class="icon"><img src="items/${icon}.png"></div>`;
         }
 
-        col.innerHTML = html + buffer;
+        col.innerHTML = html;
     }
 }
 
 function setResult() {
     const ROWS = 5;
 
-    for (let col of cols) {
-        const results = Array.from({length: ROWS}, getRandomIcon);
+    lastResults = [];
+
+    for (let c = 0; c < cols.length; c++) {
+        const results = Array.from({ length: ROWS }, getRandomIcon);
+        lastResults[c] = results;
+
+        const col = cols[c];
         const imgs = col.querySelectorAll('.icon img');
 
         for (let i = 0; i < ROWS; i++) {
@@ -134,25 +134,25 @@ function setResult() {
     }
 }
 
+// 🎯 МIDDLE PAYLINE (центр 5x5)
 function getMiddleRow() {
-    let row = [];
-    const ROWS = 5;
-
-    for (let col of cols) {
-        const imgs = col.querySelectorAll('.icon img');
-        const mid = imgs[(imgs.length - ROWS) / 2 + 2];
-        const symbol = mid.src.split('/').pop().replace('.png','');
-        row.push(symbol);
-    }
-
-    return row;
+    const MID = 2;
+    return lastResults.map(col => col[MID]);
 }
+
+// ========================
+// 💰 RESULT LOGIC
+// ========================
 
 function calculateResult(row) {
     const map = {};
-    for (let s of row) map[s] = (map[s] || 0) + 1;
+
+    for (let s of row) {
+        map[s] = (map[s] || 0) + 1;
+    }
 
     const max = Math.max(...Object.values(map));
+
     return {
         multiplier: CONFIG.multipliers[max] ?? -2,
         max
@@ -166,10 +166,11 @@ function getRandomIcon() {
 function showResult(mult) {
     const el = document.getElementById("resultArea");
 
-    let text = mult < 0 ? CONFIG.texts.lose :
-               mult === 0 ? CONFIG.texts.neutral :
-               mult === 0.5 ? CONFIG.texts.win :
-               CONFIG.texts.jackpot;
+    let text =
+        mult < 0 ? CONFIG.texts.lose :
+        mult === 0 ? CONFIG.texts.neutral :
+        mult === 0.5 ? CONFIG.texts.win :
+        CONFIG.texts.jackpot;
 
     el.innerHTML = `<div class="result-box"><h2>${text}</h2></div>`;
 }
