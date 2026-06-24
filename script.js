@@ -14,6 +14,7 @@ const spinSounds = [
 ];
 
 let soundUnlocked = false;
+let soundMode = "random";
 
 // STATS
 const stats = {
@@ -27,8 +28,21 @@ const stats = {
     }
 };
 
+function toggleSettings() {
+    const panel = document.getElementById('settingsPanel');
+    if (panel) panel.classList.toggle('hidden');
+}
+
 function playSpinSound() {
-    const sound = spinSounds[Math.floor(Math.random() * spinSounds.length)];
+    let sound;
+
+    if (soundMode === "sound1") {
+        sound = spinSounds[0];
+    } else if (soundMode === "sound2") {
+        sound = spinSounds[1];
+    } else {
+        sound = spinSounds[Math.floor(Math.random() * spinSounds.length)];
+    }
 
     sound.volume = 0.4;
     sound.loop = true;
@@ -57,6 +71,13 @@ window.addEventListener('DOMContentLoaded', function() {
     cols = document.querySelectorAll('.col');
     setInitialItems();
     updateStats();
+
+    const select = document.getElementById('soundMode');
+    if (select) {
+        select.addEventListener('change', (e) => {
+            soundMode = e.target.value;
+        });
+    }
 });
 
 function setInitialItems() {
@@ -99,7 +120,6 @@ function spin(elem) {
         document.getElementById('container').classList.remove('spinning');
         elem.removeAttribute('disabled');
 
-        // AFTER SPIN EVALUATION
         stats.totalSpins++;
 
         let row = getMiddleRow();
