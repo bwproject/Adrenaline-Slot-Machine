@@ -16,7 +16,6 @@ const spinSounds = [
 let soundUnlocked = false;
 let soundMode = "random";
 
-// 💰 COINS SYSTEM
 let coins = 100;
 
 function updateCoinsUI() {
@@ -24,7 +23,6 @@ function updateCoinsUI() {
     if (el) el.textContent = coins;
 }
 
-// STATS
 const stats = {
     totalSpins: 0,
     wins: 0,
@@ -129,9 +127,9 @@ function spin(elem) {
         let row = getMiddleRow();
         let result = calculateResult(row);
 
-        // 🎰 ECONOMY RULES
         let max = result.max;
 
+        // ECONOMY
         if (max < 3) coins -= 5;
         else if (max === 3) coins += 10;
         else if (max === 4) coins += 15;
@@ -142,6 +140,20 @@ function spin(elem) {
         stats.payout += result.multiplier;
         if (result.multiplier < 0) stats.losses++;
         else stats.wins++;
+
+        // 🎨 CASINO POLISH EFFECTS
+        const appEl = document.getElementById('app');
+        if (appEl) {
+            appEl.classList.remove('win','lose','jackpot');
+
+            if (result.multiplier < 0) appEl.classList.add('lose');
+            else if (result.multiplier === 0.5) appEl.classList.add('win');
+            else if (result.multiplier === 2) appEl.classList.add('jackpot');
+
+            setTimeout(() => {
+                appEl.classList.remove('win','lose','jackpot');
+            }, 1200);
+        }
 
         showResult(result.multiplier);
         updateStats();
@@ -200,9 +212,6 @@ function showResult(multiplier) {
     const el = document.getElementById('resultArea');
     if (!el) return;
 
-    let text = "";
-    let cls = "";
-
     if (multiplier === -999) {
         el.innerHTML = `
             <div class="result-box lose">
@@ -212,6 +221,9 @@ function showResult(multiplier) {
         `;
         return;
     }
+
+    let text = "";
+    let cls = "";
 
     if (multiplier < 0) { text = "💀 YOU LOSE"; cls = "lose"; }
     else if (multiplier === 0) { text = "😐 x0"; cls = "neutral"; }
@@ -238,7 +250,6 @@ function resetGame() {
 
 function updateStats() {
     const el = document.getElementById('statsContent');
-
     if (!el) return;
 
     let symbols = Object.entries(stats.symbols)
