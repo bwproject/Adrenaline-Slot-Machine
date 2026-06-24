@@ -103,6 +103,11 @@ function setInitialItems() {
 function spin(elem) {
     playSpinSound();
 
+    elem.style.display = "none";
+
+    let app = document.getElementById('app');
+    if (app) app.classList.add('spinning');
+
     let duration = BASE_SPINNING_DURATION + randomDuration();
 
     for (let col of cols) {
@@ -110,15 +115,13 @@ function spin(elem) {
         col.style.animationDuration = duration + "s";
     }
 
-    elem.setAttribute('disabled', true);
-    document.getElementById('container').classList.add('spinning');
-
     window.setTimeout(setResult, BASE_SPINNING_DURATION * 1000 / 2);
 
     window.setTimeout(function () {
         stopSpinSound();
-        document.getElementById('container').classList.remove('spinning');
-        elem.removeAttribute('disabled');
+
+        if (app) app.classList.remove('spinning');
+        elem.style.display = "inline-block";
 
         stats.totalSpins++;
 
@@ -184,37 +187,39 @@ function calculateResult(row) {
 }
 
 function showResult(multiplier) {
+    const el = document.getElementById('resultArea');
+    if (!el) return;
+
     let text = "";
     let cls = "";
 
-    if (multiplier < 0) { text = "💀 LOSE"; cls = "lose"; }
+    if (multiplier < 0) { text = "💀 YOU LOSE"; cls = "lose"; }
     else if (multiplier === 0) { text = "😐 x0"; cls = "neutral"; }
     else if (multiplier === 0.5) { text = "🙂 x0.5"; cls = "win"; }
-    else { text = "🔥 x2"; cls = "jackpot"; }
+    else { text = "🔥 x2 JACKPOT"; cls = "jackpot"; }
 
-    let modal = document.createElement('div');
-    modal.id = 'resultModal';
-
-    modal.innerHTML = `
+    el.innerHTML = `
         <div class="result-box ${cls}">
-            <h1>${text}</h1>
+            <h2>${text}</h2>
             <div class="result-buttons">
-                <button onclick="closeResult()" class="btn btn-secondary">Close</button>
-                <button onclick="spin(document.querySelector('.start-button')); closeResult();" class="btn btn-warning">Try Again</button>
+                <button onclick="resetGame()" class="btn btn-warning">Try Again</button>
             </div>
         </div>
     `;
-
-    document.body.appendChild(modal);
 }
 
-function closeResult() {
-    let el = document.getElementById('resultModal');
-    if (el) el.remove();
+function resetGame() {
+    const el = document.getElementById('resultArea');
+    if (el) el.innerHTML = "";
+
+    const btn = document.querySelector('.start-button');
+    if (btn) btn.style.display = "inline-block";
 }
 
 function updateStats() {
     const el = document.getElementById('statsContent');
+
+    if (!el) return;
 
     let symbols = Object.entries(stats.symbols)
         .map(([k,v]) => `${k}: ${v}`)
