@@ -78,8 +78,6 @@ body {
     height: var(--item-height);
     display: block;
     position: relative;
-
-    /*animation: wiggle 0.1s linear infinite;*/
 }
 
 .outer-col {
@@ -101,7 +99,7 @@ body {
 
 .col {
     padding: 0 10px;
-    will-change: true;
+    will-change: transform;
     transform: translateY(calc(-100% + var(--item-height) * 3));
 }
 
@@ -113,10 +111,8 @@ body {
     z-index: 3;
 }
 
-/* shadow effect behind the items */
 .col .icon::after {
     content: "";
-    clear: both;
     display: block;
     position: absolute;
     top: 50%;
@@ -128,10 +124,6 @@ body {
     z-index: 2;
     border-radius: 100%;
 }
-
-/*
- * Spinning animation
- */
 
 #container.spinning .outer-col:nth-of-type(2) .col {
     animation-delay: 0.01s;
@@ -157,14 +149,34 @@ body {
     }
 }
 
-/*@keyframes wiggle {
-    0% {
-        transform: rotate(7deg);
+/* MOBILE */
+@media (max-width: 768px) {
+    #container {
+        transform: scale(0.75);
+        transform-origin: center;
+        margin: 0;
+        left: 50%;
+        top: 50%;
+        position: absolute;
+        translate: -50% -50%;
     }
-    50% {
-        transform: rotate(-7deg);
+
+    .outer-col {
+        width: 70px;
     }
-    100% {
-        transform: rotate(7deg);
+
+    .icon {
+        width: 60px;
+        height: 80px;
     }
-}*/
+
+    .window {
+        height: calc(3 * 80px);
+    }
+
+    .start-button {
+        width: 90%;
+        font-size: 20px;
+        padding: 12px;
+    }
+}
