@@ -17,7 +17,6 @@ let soundUnlocked = false;
 let soundMode = "random";
 
 let coins = 100;
-
 let bet = 10;
 const MIN_SPIN = 10;
 
@@ -26,63 +25,46 @@ const introSound = new Audio('./assets/0.mp3');
 let introPlayed = false;
 
 // =====================
-// GAME MODE SYSTEM
+// PRE-GENERATED RESULT SYSTEM
 // =====================
+let pendingRow = null;
+
 const params = new URLSearchParams(window.location.search);
 const GAME_MODE = params.get('mode') || 'normal';
 
 function generateRowByMode() {
     const count = cols.length;
 
-    // HARD MODE: mostly lose patterns
     if (GAME_MODE === 'hard') {
         const type = Math.random();
-
         if (type < 0.6) {
-            // 0 matches
             return Array.from({length: count}, () => getRandomIcon());
         } else {
-            // 2 matches max
             const symbol = getRandomIcon();
-            const row = [];
-            const matchCount = 2;
-
-            for (let i = 0; i < count; i++) {
-                row.push(getRandomIcon());
-            }
-
-            for (let i = 0; i < matchCount; i++) {
-                row[i] = symbol;
-            }
-
+            const row = Array.from({length: count}, () => getRandomIcon());
+            for (let i = 0; i < 2; i++) row[i] = symbol;
             return row;
         }
     }
 
-    // STREAM MODE: always win (3-5 matches)
     if (GAME_MODE === 'stream') {
         const symbol = getRandomIcon();
-        const matchCount = 3 + Math.floor(Math.random() * 3); // 3-5
-        const row = [];
-
-        for (let i = 0; i < count; i++) {
-            row.push(symbol);
-        }
-
-        for (let i = matchCount; i < count; i++) {
-            row[i] = getRandomIcon();
-        }
-
+        const matchCount = 3 + Math.floor(Math.random() * 3);
+        const row = Array.from({length: count}, () => symbol);
+        for (let i = matchCount; i < count; i++) row[i] = getRandomIcon();
         return row;
     }
 
-    // NORMAL MODE: 50/50 full win or random
     if (Math.random() < 0.5) {
         const symbol = getRandomIcon();
         return Array.from({length: count}, () => symbol);
     }
 
     return Array.from({length: count}, () => getRandomIcon());
+}
+
+function prepareNextSpin() {
+    pendingRow = generateRowByMode();
 }
 
 function setSound(mode) {
@@ -101,10 +83,8 @@ function updateBetUI() {
 
 function changeBet(amount) {
     bet += amount;
-
     if (bet < MIN_SPIN) bet = MIN_SPIN;
     if (bet > coins) bet = coins;
-
     updateBetUI();
 }
 
@@ -113,15 +93,11 @@ const stats = {
     wins: 0,
     losses: 0,
     payout: 0,
-    symbols: {
-        1:0,2:0,3:0,4:0,5:0,6:0,7:0,
-        8:0,9:0,10:0,11:0,12:0,13:0
-    }
+    symbols: {1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0,13:0}
 };
 
 function playSpinSound() {
     let sound;
-
     if (soundMode === "sound1") sound = spinSounds[0];
     else if (soundMode === "sound2") sound = spinSounds[1];
     else sound = spinSounds[Math.floor(Math.random() * spinSounds.length)];
@@ -130,11 +106,7 @@ function playSpinSound() {
     sound.loop = true;
 
     if (!soundUnlocked) {
-        sound.play().then(() => {
-            sound.pause();
-            sound.currentTime = 0;
-            soundUnlocked = true;
-        }).catch(() => {});
+        sound.play().then(() => { sound.pause(); sound.currentTime = 0; soundUnlocked = true; }).catch(() => {});
         return;
     }
 
@@ -155,6 +127,8 @@ window.addEventListener('DOMContentLoaded', function() {
     updateStats();
     updateCoinsUI();
     updateBetUI();
+
+    prepareNextSpin();
 
     if (!introPlayed) {
         introSound.volume = 0.5;
@@ -184,7 +158,7 @@ function setInitialItems() {
 }
 
 function setResult() {
-    const row = generateRowByMode();
+    const row = pendingRow || generateRowByMode();
 
     for (let i = 0; i < cols.length; i++) {
         const col = cols[i];
@@ -201,6 +175,8 @@ function setResult() {
             }
         }
     }
+
+    prepareNextSpin();
 }
 
 function spin(elem) {
@@ -230,7 +206,6 @@ function spin(elem) {
 
     window.setTimeout(function () {
         stopSpinSound();
-
         if (app) app.classList.remove('spinning');
         elem.style.display = "inline-block";
 
@@ -238,7 +213,6 @@ function spin(elem) {
 
         let row = getMiddleRow();
         let result = calculateResult(row);
-
         const multiplier = result.multiplier;
 
         coins += Math.floor(bet * multiplier);
@@ -246,21 +220,16 @@ function spin(elem) {
 
         stats.payout += multiplier;
 
-        if (multiplier > 0) stats.wins++;
-        else stats.losses++;
+        if (multiplier > 0) stats.wins++; else stats.losses++;
 
         const appEl = document.getElementById('app');
         if (appEl) {
             appEl.classList.remove('win','lose','jackpot','neutral');
-
             if (multiplier < 0) appEl.classList.add('lose');
             else if (multiplier === 0) appEl.classList.add('neutral');
             else if (multiplier === 0.5) appEl.classList.add('win');
             else if (multiplier === 2) appEl.classList.add('jackpot');
-
-            setTimeout(() => {
-                appEl.classList.remove('win','lose','jackpot','neutral');
-            }, 1200);
+            setTimeout(() => appEl.classList.remove('win','lose','jackpot','neutral'), 1200);
         }
 
         showResult(multiplier);
@@ -271,26 +240,19 @@ function spin(elem) {
 
 function getMiddleRow() {
     let row = [];
-
     for (let col of cols) {
         let icons = col.querySelectorAll('.icon img');
         let middle = icons[icons.length - 2].getAttribute('src');
         let symbol = middle.split('/').pop().replace('.png', '');
-
         row.push(symbol);
         stats.symbols[symbol]++;
     }
-
     return row;
 }
 
 function calculateResult(row) {
     let map = {};
-
-    for (let s of row) {
-        map[s] = (map[s] || 0) + 1;
-    }
-
+    for (let s of row) map[s] = (map[s] || 0) + 1;
     let max = Math.max(...Object.values(map));
 
     if (max < 3) return { multiplier: -1, max };
@@ -316,14 +278,7 @@ function showResult(multiplier) {
     else if (multiplier === 0.5) { text = "🙂 WIN +0.5x"; cls = "win"; }
     else { text = "🔥 JACKPOT x2"; cls = "jackpot"; }
 
-    el.innerHTML = `
-        <div class="result-box ${cls}">
-            <h2>${text}</h2>
-            <div class="result-buttons">
-                <button onclick="resetGame()" class="btn btn-warning">Try Again</button>
-            </div>
-        </div>
-    `;
+    el.innerHTML = `<div class="result-box ${cls}"><h2>${text}</h2><div class="result-buttons"><button onclick="resetGame()" class="btn btn-warning">Try Again</button></div></div>`;
 }
 
 function resetGame() {
@@ -337,18 +292,9 @@ function updateStats() {
     const el = document.getElementById('statsContent');
     if (!el) return;
 
-    let symbols = Object.entries(stats.symbols)
-        .map(([k,v]) => `${k}: ${v}`)
-        .join('<br>');
+    let symbols = Object.entries(stats.symbols).map(([k,v]) => `${k}: ${v}`).join('<br>');
 
-    el.innerHTML = `
-        Spins: ${stats.totalSpins}<br>
-        Wins: ${stats.wins}<br>
-        Losses: ${stats.losses}<br>
-        Payout: ${stats.payout.toFixed(1)}x<br>
-        <hr>
-        ${symbols}
-    `;
+    el.innerHTML = `Spins: ${stats.totalSpins}<br>Wins: ${stats.wins}<br>Losses: ${stats.losses}<br>Payout: ${stats.payout.toFixed(1)}x<hr>${symbols}`;
 }
 
 function getRandomIcon() {
