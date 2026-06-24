@@ -23,7 +23,6 @@ const MIN_SPIN = 10;
 const introSound = new Audio('./assets/0.mp3');
 let introPlayed = false;
 
-// PRE-GENERATED RESULT
 let pendingRow = null;
 
 const params = new URLSearchParams(window.location.search);
@@ -37,15 +36,11 @@ function randomDuration() {
     return Math.floor(Math.random() * 12) / 100;
 }
 
-// More natural easing per reel stop (casino inertia feel)
 function getReelDelay(i) {
     const base = BASE_SPINNING_DURATION;
     const stagger = i * COLUMN_SPINNING_DURATION;
-
-    // add inertia randomness + slight slowdown curve
     const inertia = Math.pow(i + 1, 1.15) * 0.08;
     const jitter = (Math.random() * 0.15);
-
     return (base + stagger + inertia + jitter) * 1000;
 }
 
@@ -121,48 +116,19 @@ function finalizeColumn(colIndex) {
         icons[i].src = 'items/' + symbol + '.png';
     }
 
-    // small bounce visual effect per reel stop
     col.style.transform = "translateY(0) scale(1.02)";
     setTimeout(() => {
         col.style.transform = "translateY(0) scale(1)";
     }, 120);
 }
 
-window.addEventListener('DOMContentLoaded', function() {
-    cols = document.querySelectorAll('.col');
-    setInitialItems();
-    updateCoinsUI();
-    updateBetUI();
-    prepareNextSpin();
-
-    if (!introPlayed) {
-        introSound.volume = 0.5;
-        introSound.play().catch(() => {});
-        introPlayed = true;
-    }
-});
-
-function setInitialItems() {
-    let baseItemAmount = 40;
-
-    for (let i = 0; i < cols.length; i++) {
-        let col = cols[i];
-        let amountOfItems = baseItemAmount + (i * 3);
-        let elms = '';
-        let firstThreeElms = '';
-
-        for (let x = 0; x < amountOfItems; x++) {
-            let icon = getRandomIcon();
-            let item = '<div class="icon" data-item="' + icon + '"><img src="items/' + icon + '.png"></div>';
-            elms += item;
-            if (x < 3) firstThreeElms += item;
-        }
-
-        col.innerHTML = elms + firstThreeElms;
-    }
+// OLD FUNCTION NAME (compat)
+function spin(elem) {
+    return spinReels(elem);
 }
 
-function spin(elem) {
+// NEW FUNCTION NAME
+function spinReels(elem) {
     if (coins < bet) {
         showResult(-999);
         return;
@@ -182,7 +148,6 @@ function spin(elem) {
 
     for (let i = 0; i < cols.length; i++) {
         const delay = getReelDelay(i);
-
         totalDelay = Math.max(totalDelay, delay);
 
         setTimeout(() => {
