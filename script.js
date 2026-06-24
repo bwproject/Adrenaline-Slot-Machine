@@ -13,36 +13,40 @@ const BASE_SPINNING_DURATION = 2.7;
  */
 const COLUMN_SPINNING_DURATION = 0.3;
 
-
 var cols;
 
-const spinSound = document.getElementById('spinSound');
+const spinSounds = [
+    new Audio('/assets/spin.mp3'),
+    new Audio('/assets/spin2.mp3')
+];
+
 let soundUnlocked = false;
 
 function playSpinSound() {
-    if (!spinSound) return;
+    const sound = spinSounds[Math.floor(Math.random() * spinSounds.length)];
 
-    spinSound.volume = 0.4;
-    spinSound.loop = true;
+    sound.volume = 0.4;
+    sound.loop = true;
 
+    // iOS unlock handling
     if (!soundUnlocked) {
-        spinSound.play().then(() => {
-            spinSound.pause();
-            spinSound.currentTime = 0;
+        sound.play().then(() => {
+            sound.pause();
+            sound.currentTime = 0;
             soundUnlocked = true;
         }).catch(() => {});
         return;
     }
 
-    spinSound.currentTime = 0;
-    spinSound.play().catch(() => {});
+    sound.currentTime = 0;
+    sound.play().catch(() => {});
 }
 
 function stopSpinSound() {
-    if (!spinSound) return;
-
-    spinSound.pause();
-    spinSound.currentTime = 0;
+    for (let s of spinSounds) {
+        s.pause();
+        s.currentTime = 0;
+    }
 }
 
 window.addEventListener('DOMContentLoaded', function(event) {
@@ -56,7 +60,7 @@ function setInitialItems() {
 
     for (let i = 0; i < cols.length; ++i) {
         let col = cols[i];
-        let amountOfItems = baseItemAmount + (i * 3); // Increment the amount for each column
+        let amountOfItems = baseItemAmount + (i * 3);
         let elms = '';
         let firstThreeElms = '';
 
@@ -96,7 +100,6 @@ function spin(elem) {
 
 function setResult() {
     for (let col of cols) {
-
         let results = [
             getRandomIcon(),
             getRandomIcon(),
