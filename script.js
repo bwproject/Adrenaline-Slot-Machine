@@ -1,180 +1,107 @@
-const ICONS = Array.from({ length: 13 }, (_, i) => `items/${i + 1}.jpg`);
+const ICONS = [
+    '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12' '13',
+];
 
+/**
+ * @type {number} The minimum spin time in seconds
+ */
 const BASE_SPINNING_DURATION = 2.7;
+
+/**
+ * @type {number} The additional duration to the base duration for each row (in seconds).
+ * It makes the typical effect that the first reel ends, then the second, and so on...
+ */
 const COLUMN_SPINNING_DURATION = 0.3;
 
-let cols;
 
-let audioCtx;
-let speeds = [];
-let positions = [];
-let running = false;
+var cols;
 
-function initAudio() {
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
-}
 
-function playTone(freq, time = 0.08, type = "sine") {
-  if (!audioCtx) return;
+window.addEventListener('DOMContentLoaded', function(event) {
+    cols = document.querySelectorAll('.col');
 
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-
-  osc.type = type;
-  osc.frequency.value = freq;
-  gain.gain.value = 0.05;
-
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-
-  osc.start();
-  osc.stop(audioCtx.currentTime + time);
-}
-
-function soundSpin() { playTone(120, 0.05); }
-function soundStop() { playTone(220, 0.08); }
-function soundWin() {
-  playTone(520, 0.1);
-  setTimeout(() => playTone(660, 0.1), 120);
-  setTimeout(() => playTone(880, 0.15), 240);
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-  cols = document.querySelectorAll('.col');
-
-  speeds = Array(cols.length).fill(0);
-  positions = Array(cols.length).fill(0);
-
-  setInitialItems();
+    setInitialItems();
 });
 
 function setInitialItems() {
-  let baseItemAmount = 40;
+    let baseItemAmount = 40;
 
-  for (let i = 0; i < cols.length; ++i) {
-    let col = cols[i];
-    let amountOfItems = baseItemAmount + (i * 3);
+    for (let i = 0; i < cols.length; ++i) {
+        let col = cols[i];
+        let amountOfItems = baseItemAmount + (i * 3); // Increment the amount for each column
+        let elms = '';
+        let firstThreeElms = '';
 
-    let elms = '';
-    let firstThreeElms = '';
+        for (let x = 0; x < amountOfItems; x++) {
+            let icon = getRandomIcon();
+            let item = '<div class="icon" data-item="' + icon + '"><img src="items/' + icon + '.png"></div>';
+            elms += item;
 
-    for (let x = 0; x < amountOfItems; x++) {
-      let icon = getRandomIcon();
-      let item = `<div class="icon" data-item="${icon}"><img src="${icon}" />`;
-
-      elms += item;
-      if (x < 3) firstThreeElms += item;
+            if (x < 3) firstThreeElms += item; // Backup the first three items because the last three must be the same
+        }
+        col.innerHTML = elms + firstThreeElms;
     }
-
-    col.innerHTML = elms + firstThreeElms;
-  }
 }
 
+/**
+ * Called when the start-button is pressed.
+ *
+ * @param elem The button itself
+ */
 function spin(elem) {
-  if (running) return;
-  running = true;
+    let duration = BASE_SPINNING_DURATION + randomDuration();
 
-  initAudio();
-  soundSpin();
-
-  elem.disabled = true;
-  document.getElementById('container').classList.add('spinning');
-
-  speeds = speeds.map(() => 35 + Math.random() * 25);
-
-  let stopTimes = [1200, 1700, 2200, 2700, 3200];
-
-  stopTimes.forEach((t, i) => setTimeout(() => stopReel(i), t));
-
-  requestAnimationFrame(updateReels);
-}
-
-function updateReels() {
-  if (!running) return;
-
-  const itemHeight = 100;
-
-  cols.forEach((col, i) => {
-    positions[i] += speeds[i];
-
-    if (positions[i] > itemHeight * 3) positions[i] = 0;
-
-    col.style.transform = `translateY(${positions[i]}px)`;
-  });
-
-  requestAnimationFrame(updateReels);
-}
-
-function stopReel(i) {
-  speeds[i] *= 0.2;
-
-  setTimeout(() => {
-    speeds[i] = 0;
-    soundStop();
-
-    if (speeds.every(s => s === 0)) {
-      finishSpin();
+    for (let col of cols) { // set the animation duration for each column
+        duration += COLUMN_SPINNING_DURATION + randomDuration();
+        col.style.animationDuration = duration + "s";
     }
-  }, 350);
+
+    // disable the start-button
+    elem.setAttribute('disabled', true);
+
+    // set the spinning class so the css animation starts to play
+    document.getElementById('container').classList.add('spinning');
+
+    // set the result delayed
+    // this would be the right place to request the combination from the server
+    window.setTimeout(setResult, BASE_SPINNING_DURATION * 1000 / 2);
+
+    window.setTimeout(function () {
+        // after the spinning is done, remove the class and enable the button again
+        document.getElementById('container').classList.remove('spinning');
+        elem.removeAttribute('disabled');
+    }.bind(elem), duration * 1000);
 }
 
-function finishSpin() {
-  running = false;
-
-  document.getElementById('container').classList.remove('spinning');
-
-  setResult();
-
-  let win = checkWin();
-  if (win) soundWin();
-
-  const btn = document.querySelector('.start-button');
-  if (btn) btn.disabled = false;
-}
-
+/**
+ * Sets the result items at the beginning and the end of the columns
+ */
 function setResult() {
-  for (let col of cols) {
-    let results = [
-      getRandomIcon(),
-      getRandomIcon(),
-      getRandomIcon()
-    ];
+    for (let col of cols) {
 
-    let icons = col.querySelectorAll('.icon img');
+        // generate 3 random items
+        let results = [
+            getRandomIcon(),
+            getRandomIcon(),
+            getRandomIcon()
+        ];
 
-    for (let x = 0; x < 3; x++) {
-      if (icons[x]) icons[x].src = results[x];
-      if (icons[(icons.length - 3) + x]) icons[(icons.length - 3) + x].src = results[x];
+        let icons = col.querySelectorAll('.icon img');
+        // replace the first and last three items of each column with the generated items
+        for (let x = 0; x < 3; x++) {
+            icons[x].setAttribute('src', 'items/' + results[x] + '.png');
+            icons[(icons.length - 3) + x].setAttribute('src', 'items/' + results[x] + '.png');
+        }
     }
-  }
-}
-
-function checkWin() {
-  let grid = [];
-
-  document.querySelectorAll('.col').forEach(col => {
-    let imgs = col.querySelectorAll('.icon img');
-    grid.push([
-      imgs[0].src,
-      imgs[1].src,
-      imgs[2].src
-    ]);
-  });
-
-  for (let row = 0; row < 3; row++) {
-    let first = grid[0][row];
-    if (grid.every(col => col[row] === first)) return true;
-  }
-
-  return false;
 }
 
 function getRandomIcon() {
-  return ICONS[Math.floor(Math.random() * ICONS.length)];
+    return ICONS[Math.floor(Math.random() * ICONS.length)];
 }
 
+/**
+ * @returns {number} 0.00 to 0.09 inclusive
+ */
 function randomDuration() {
-  return Math.floor(Math.random() * 10) / 100;
+    return Math.floor(Math.random() * 10) / 100;
 }
