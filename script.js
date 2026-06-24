@@ -22,7 +22,7 @@ const CONFIG = {
         win: "🙂 WIN +0.5x",
         jackpot: "🔥 JACKPOT x2",
         restart: "Restart",
-        tryAgain: "Try Again"
+        tryAgain: "НУЖЕН ДОДЕП"
     }
 };
 
