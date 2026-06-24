@@ -2,22 +2,15 @@ const ICONS = [
     '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13',
 ];
 
-/**
- * @type {number} The minimum spin time in seconds
- */
 const BASE_SPINNING_DURATION = 2.7;
-
-/**
- * @type {number} The additional duration to the base duration for each row (in seconds).
- * It makes the typical effect that the first reel ends, then the second, and so on...
- */
 const COLUMN_SPINNING_DURATION = 0.3;
 
 var cols;
 
+// FIX: use relative paths (important for GitHub Pages)
 const spinSounds = [
-    new Audio('/assets/spin.mp3'),
-    new Audio('/assets/spin2.mp3')
+    new Audio('./assets/spin.mp3'),
+    new Audio('./assets/spin2.mp3')
 ];
 
 let soundUnlocked = false;
@@ -28,7 +21,6 @@ function playSpinSound() {
     sound.volume = 0.4;
     sound.loop = true;
 
-    // iOS unlock handling
     if (!soundUnlocked) {
         sound.play().then(() => {
             sound.pause();
@@ -51,7 +43,6 @@ function stopSpinSound() {
 
 window.addEventListener('DOMContentLoaded', function(event) {
     cols = document.querySelectorAll('.col');
-
     setInitialItems();
 });
 
@@ -86,7 +77,6 @@ function spin(elem) {
     }
 
     elem.setAttribute('disabled', true);
-
     document.getElementById('container').classList.add('spinning');
 
     window.setTimeout(setResult, BASE_SPINNING_DURATION * 1000 / 2);
