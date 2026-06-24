@@ -21,6 +21,10 @@ let coins = 100;
 let bet = 10;
 const MIN_SPIN = 10;
 
+// INTRO SOUND
+const introSound = new Audio('./assets/0.mp3');
+let introPlayed = false;
+
 function setSound(mode) {
     soundMode = mode;
 }
@@ -91,6 +95,13 @@ window.addEventListener('DOMContentLoaded', function() {
     updateStats();
     updateCoinsUI();
     updateBetUI();
+
+    // INTRO SOUND (play once)
+    if (!introPlayed) {
+        introSound.volume = 0.5;
+        introSound.play().catch(() => {});
+        introPlayed = true;
+    }
 });
 
 function setInitialItems() {
