@@ -9,9 +9,9 @@ const ICONS = [
 const BASE_SPINNING_DURATION = 2.7;
 const COLUMN_SPINNING_DURATION = 0.3;
 
-const START_COINS = 100;
-const START_BET = 10;
-const MIN_BET = 10;
+const START_COINS = 5000;
+const START_BET = 100;
+const MIN_BET = 50;
 
 // RESULT MULTIPLIERS
 const RESULT = {
