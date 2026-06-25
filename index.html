@@ -68,18 +68,32 @@
         <!-- CONTROLS -->
         <div class="controls" style="display:flex; flex-direction:column; gap:10px; align-items:center;">
 
+            <!-- BET DISPLAY (NEW) -->
+            <div>
+                <button class="btn btn-warning btn-lg"
+                        style="min-width:220px; font-weight:bold;">
+                    💰 BET: <span id="betValue">10</span>
+                </button>
+            </div>
+
             <!-- BUTTON ROW -->
             <div style="display:flex; gap:15px; align-items:center;">
 
-                <button class="btn btn-warning btn-lg bet-btn" onclick="changeBet(-10)" style="min-width:140px;">
+                <button class="btn btn-warning btn-lg bet-btn"
+                        onclick="changeBet(-10)"
+                        style="min-width:140px;">
                     - BET
                 </button>
 
-                <button onclick="spin(this)" class="btn btn-warning btn-lg spin-btn" style="min-width:160px;">
+                <button onclick="spin(this)"
+                        class="btn btn-warning btn-lg spin-btn"
+                        style="min-width:160px;">
                     <i class="fa-solid fa-dice"></i> SPIN
                 </button>
 
-                <button class="btn btn-warning btn-lg bet-btn" onclick="changeBet(10)" style="min-width:140px;">
+                <button class="btn btn-warning btn-lg bet-btn"
+                        onclick="changeBet(10)"
+                        style="min-width:140px;">
                     BET +
                 </button>
 
