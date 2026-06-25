@@ -2,104 +2,41 @@ const ICONS = [
     '1','2','3','4','5','6','7','8','9','10','11','12','13'
 ];
 
-// =====================
-// CONFIG
-// =====================
 const BASE_SPINNING_DURATION = 2.7;
 const COLUMN_SPINNING_DURATION = 0.3;
-const MIN_SPIN = 50;
-const DEFAULT_COINS = 1000;
-const DEFAULT_BET = 50;
 
-// =====================
-// TEXTS
-// =====================
-const TEXTS = {
-    noCoins: "💀 NO COINS",
-    restart: "Restart",
-    tryAgain: "Try Again"
-};
+var cols;
 
-const RESULT_TEXTS = {
-    lose: "💀 LOSE",
-    draw: "😐 BREAK EVEN",
-    win: "🙂 WIN +0.5x",
-    jackpot: "🔥 JACKPOT x2"
-};
-
-// =====================
 // AUDIO
-// =====================
 const spinSounds = [
     new Audio('./assets/spin.mp3'),
     new Audio('./assets/spin2.mp3')
 ];
 
-const introSound = new Audio('./assets/0.mp3');
-
 let soundUnlocked = false;
 let soundMode = "random";
+
+let coins = 100;
+
+let bet = 10;
+const MIN_SPIN = 10;
+
+// INTRO SOUND
+const introSound = new Audio('./assets/0.mp3');
 let introPlayed = false;
 
-var cols;
-
-// =====================
-// URL PARAMS
-// =====================
-function getUrlParams() {
-    const params = new URLSearchParams(window.location.search);
-
-    const coinsParam = parseInt(params.get("coins"));
-    const betParam = parseInt(params.get("betValue"));
-
-    return {
-        coins: (!isNaN(coinsParam) && coinsParam > 0) ? coinsParam : DEFAULT_COINS,
-        bet: (!isNaN(betParam) && betParam >= MIN_SPIN) ? betParam : DEFAULT_BET
-    };
+function setSound(mode) {
+    soundMode = mode;
 }
 
-const urlData = getUrlParams();
-
-let coins = urlData.coins;
-let bet = Math.min(urlData.bet, coins);
-
-// =====================
-// STATS
-// =====================
-const stats = {
-    totalSpins: 0,
-    wins: 0,
-    losses: 0,
-    payout: 0,
-    symbols: {
-        1:0,2:0,3:0,4:0,5:0,6:0,7:0,
-        8:0,9:0,10:0,11:0,12:0,13:0
-    }
-};
-
-// =====================
-// URL SYNC
-// =====================
-function syncUrl() {
-    const url = new URL(window.location);
-    url.searchParams.set("coins", coins);
-    url.searchParams.set("betValue", bet);
-    window.history.replaceState({}, "", url);
-}
-
-// =====================
-// UI
-// =====================
 function updateCoinsUI() {
     const el = document.getElementById("coins");
     if (el) el.textContent = coins;
-    syncUrl();
 }
 
 function updateBetUI() {
     const el = document.getElementById("betValue");
     if (el) el.textContent = bet;
-    syncUrl();
 }
 
 function changeBet(amount) {
@@ -111,9 +48,47 @@ function changeBet(amount) {
     updateBetUI();
 }
 
-// =====================
-// INIT
-// =====================
+const stats = {
+    totalSpins: 0,
+    wins: 0,
+    losses: 0,
+    payout: 0,
+    symbols: {
+        1:0,2:0,3:0,4:0,5:0,6:0,7:0,
+        8:0,9:0,10:0,11:0,12:0,13:0
+    }
+};
+
+function playSpinSound() {
+    let sound;
+
+    if (soundMode === "sound1") sound = spinSounds[0];
+    else if (soundMode === "sound2") sound = spinSounds[1];
+    else sound = spinSounds[Math.floor(Math.random() * spinSounds.length)];
+
+    sound.volume = 0.4;
+    sound.loop = true;
+
+    if (!soundUnlocked) {
+        sound.play().then(() => {
+            sound.pause();
+            sound.currentTime = 0;
+            soundUnlocked = true;
+        }).catch(() => {});
+        return;
+    }
+
+    sound.currentTime = 0;
+    sound.play().catch(() => {});
+}
+
+function stopSpinSound() {
+    for (let s of spinSounds) {
+        s.pause();
+        s.currentTime = 0;
+    }
+}
+
 window.addEventListener('DOMContentLoaded', function() {
     cols = document.querySelectorAll('.col');
     setInitialItems();
@@ -121,6 +96,7 @@ window.addEventListener('DOMContentLoaded', function() {
     updateCoinsUI();
     updateBetUI();
 
+    // INTRO SOUND (play once)
     if (!introPlayed) {
         introSound.volume = 0.5;
         introSound.play().catch(() => {});
@@ -128,9 +104,6 @@ window.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// =====================
-// SLOT CORE
-// =====================
 function setInitialItems() {
     let baseItemAmount = 40;
 
@@ -197,49 +170,26 @@ function spin(elem) {
         if (multiplier > 0) stats.wins++;
         else stats.losses++;
 
+        const appEl = document.getElementById('app');
+        if (appEl) {
+            appEl.classList.remove('win','lose','jackpot','neutral');
+
+            if (multiplier < 0) appEl.classList.add('lose');
+            else if (multiplier === 0) appEl.classList.add('neutral');
+            else if (multiplier === 0.5) appEl.classList.add('win');
+            else if (multiplier === 2) appEl.classList.add('jackpot');
+
+            setTimeout(() => {
+                appEl.classList.remove('win','lose','jackpot','neutral');
+            }, 1200);
+        }
+
         showResult(multiplier);
         updateStats();
 
     }.bind(elem), duration * 1000);
 }
 
-// =====================
-// RESULT
-// =====================
-function showResult(multiplier) {
-    const el = document.getElementById('resultArea');
-    if (!el) return;
-
-    if (multiplier === -999) {
-        el.innerHTML = `
-            <div class="result-box lose">
-                <h2>${TEXTS.noCoins}</h2>
-                <button onclick="resetGame()" class="btn btn-warning">${TEXTS.restart}</button>
-            </div>`;
-        return;
-    }
-
-    let text = "";
-    let cls = "";
-
-    if (multiplier < 0) { text = RESULT_TEXTS.lose; cls = "lose"; }
-    else if (multiplier === 0) { text = RESULT_TEXTS.draw; cls = "neutral"; }
-    else if (multiplier === 0.5) { text = RESULT_TEXTS.win; cls = "win"; }
-    else { text = RESULT_TEXTS.jackpot; cls = "jackpot"; }
-
-    el.innerHTML = `
-        <div class="result-box ${cls}">
-            <h2>${text}</h2>
-            <div class="result-buttons">
-                <button onclick="resetGame()" class="btn btn-warning">${TEXTS.tryAgain}</button>
-            </div>
-        </div>
-    `;
-}
-
-// =====================
-// LOGIC (original intact)
-// =====================
 function setResult() {
     for (let col of cols) {
         let results = [getRandomIcon(), getRandomIcon(), getRandomIcon()];
@@ -282,9 +232,40 @@ function calculateResult(row) {
     return { multiplier: 2, max };
 }
 
-// =====================
-// HELPERS
-// =====================
+function showResult(multiplier) {
+    const el = document.getElementById('resultArea');
+    if (!el) return;
+
+    if (multiplier === -999) {
+        el.innerHTML = `<div class="result-box lose"><h2>💀 NO COINS</h2><button onclick="resetGame()" class="btn btn-warning">Restart</button></div>`;
+        return;
+    }
+
+    let text = "";
+    let cls = "";
+
+    if (multiplier < 0) { text = "💀 LOSE"; cls = "lose"; }
+    else if (multiplier === 0) { text = "😐 BREAK EVEN"; cls = "neutral"; }
+    else if (multiplier === 0.5) { text = "🙂 WIN +0.5x"; cls = "win"; }
+    else { text = "🔥 JACKPOT x2"; cls = "jackpot"; }
+
+    el.innerHTML = `
+        <div class="result-box ${cls}">
+            <h2>${text}</h2>
+            <div class="result-buttons">
+                <button onclick="resetGame()" class="btn btn-warning">Try Again</button>
+            </div>
+        </div>
+    `;
+}
+
+function resetGame() {
+    const el = document.getElementById('resultArea');
+    if (el) el.innerHTML = "";
+    const btn = document.querySelector('.start-button');
+    if (btn) btn.style.display = "inline-block";
+}
+
 function updateStats() {
     const el = document.getElementById('statsContent');
     if (!el) return;
@@ -309,11 +290,4 @@ function getRandomIcon() {
 
 function randomDuration() {
     return Math.floor(Math.random() * 10) / 100;
-}
-
-function resetGame() {
-    const el = document.getElementById('resultArea');
-    if (el) el.innerHTML = "";
-    const btn = document.querySelector('.start-button');
-    if (btn) btn.style.display = "inline-block";
 }
