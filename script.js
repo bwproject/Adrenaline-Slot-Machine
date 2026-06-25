@@ -7,26 +7,19 @@ const ICONS = [
 // =====================
 const BASE_SPINNING_DURATION = 2.7;
 const COLUMN_SPINNING_DURATION = 0.3;
-const MIN_BET = 50;
+const MIN_SPIN = 50;
 const DEFAULT_COINS = 1000;
-const DEFAULT_BET = 1000;
+const DEFAULT_BET = 50;
 
 // =====================
-// TEXTS (UI)
+// TEXTS
 // =====================
 const TEXTS = {
     noCoins: "💀 NO COINS",
     restart: "Restart",
-    spinButton: "Крутить",
-    betLabel: "Ставка:",
-    playerLabel: "Игрок: User",
-    coinsLabel: "Монет:",
-    tryAgain: "Додеп ?"
+    tryAgain: "Try Again"
 };
 
-// =====================
-// RESULT TEXTS
-// =====================
 const RESULT_TEXTS = {
     lose: "💀 LOSE",
     draw: "😐 BREAK EVEN",
@@ -48,11 +41,11 @@ let soundUnlocked = false;
 let soundMode = "random";
 let introPlayed = false;
 
-// =====================
-// STATE
-// =====================
 var cols;
 
+// =====================
+// URL PARAMS
+// =====================
 function getUrlParams() {
     const params = new URLSearchParams(window.location.search);
 
@@ -61,7 +54,7 @@ function getUrlParams() {
 
     return {
         coins: (!isNaN(coinsParam) && coinsParam > 0) ? coinsParam : DEFAULT_COINS,
-        bet: (!isNaN(betParam) && betParam >= MIN_BET) ? betParam : DEFAULT_BET
+        bet: (!isNaN(betParam) && betParam >= MIN_SPIN) ? betParam : DEFAULT_BET
     };
 }
 
@@ -69,6 +62,20 @@ const urlData = getUrlParams();
 
 let coins = urlData.coins;
 let bet = Math.min(urlData.bet, coins);
+
+// =====================
+// STATS
+// =====================
+const stats = {
+    totalSpins: 0,
+    wins: 0,
+    losses: 0,
+    payout: 0,
+    symbols: {
+        1:0,2:0,3:0,4:0,5:0,6:0,7:0,
+        8:0,9:0,10:0,11:0,12:0,13:0
+    }
+};
 
 // =====================
 // URL SYNC
@@ -95,13 +102,10 @@ function updateBetUI() {
     syncUrl();
 }
 
-// =====================
-// BET
-// =====================
 function changeBet(amount) {
     bet += amount;
 
-    if (bet < MIN_BET) bet = MIN_BET;
+    if (bet < MIN_SPIN) bet = MIN_SPIN;
     if (bet > coins) bet = coins;
 
     updateBetUI();
@@ -125,7 +129,7 @@ window.addEventListener('DOMContentLoaded', function() {
 });
 
 // =====================
-// SLOT LOGIC (unchanged core)
+// SLOT CORE
 // =====================
 function setInitialItems() {
     let baseItemAmount = 40;
@@ -200,7 +204,7 @@ function spin(elem) {
 }
 
 // =====================
-// RESULT UI
+// RESULT
 // =====================
 function showResult(multiplier) {
     const el = document.getElementById('resultArea');
@@ -234,12 +238,82 @@ function showResult(multiplier) {
 }
 
 // =====================
-// HELPERS (unchanged)
+// LOGIC (original intact)
 // =====================
+function setResult() {
+    for (let col of cols) {
+        let results = [getRandomIcon(), getRandomIcon(), getRandomIcon()];
+        let icons = col.querySelectorAll('.icon img');
+
+        for (let x = 0; x < 3; x++) {
+            icons[x].src = 'items/' + results[x] + '.png';
+            icons[(icons.length - 3) + x].src = 'items/' + results[x] + '.png';
+        }
+    }
+}
+
+function getMiddleRow() {
+    let row = [];
+
+    for (let col of cols) {
+        let icons = col.querySelectorAll('.icon img');
+        let middle = icons[icons.length - 2].getAttribute('src');
+        let symbol = middle.split('/').pop().replace('.png', '');
+
+        row.push(symbol);
+        stats.symbols[symbol]++;
+    }
+
+    return row;
+}
+
+function calculateResult(row) {
+    let map = {};
+
+    for (let s of row) {
+        map[s] = (map[s] || 0) + 1;
+    }
+
+    let max = Math.max(...Object.values(map));
+
+    if (max < 3) return { multiplier: -1, max };
+    if (max === 3) return { multiplier: 0, max };
+    if (max === 4) return { multiplier: 0.5, max };
+    return { multiplier: 2, max };
+}
+
+// =====================
+// HELPERS
+// =====================
+function updateStats() {
+    const el = document.getElementById('statsContent');
+    if (!el) return;
+
+    let symbols = Object.entries(stats.symbols)
+        .map(([k,v]) => `${k}: ${v}`)
+        .join('<br>');
+
+    el.innerHTML = `
+        Spins: ${stats.totalSpins}<br>
+        Wins: ${stats.wins}<br>
+        Losses: ${stats.losses}<br>
+        Payout: ${stats.payout.toFixed(1)}x<br>
+        <hr>
+        ${symbols}
+    `;
+}
+
 function getRandomIcon() {
     return ICONS[Math.floor(Math.random() * ICONS.length)];
 }
 
 function randomDuration() {
     return Math.floor(Math.random() * 10) / 100;
+}
+
+function resetGame() {
+    const el = document.getElementById('resultArea');
+    if (el) el.innerHTML = "";
+    const btn = document.querySelector('.start-button');
+    if (btn) btn.style.display = "inline-block";
 }
