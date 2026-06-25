@@ -7,9 +7,9 @@ const ICONS = [
 // =====================
 const BASE_SPINNING_DURATION = 2.7;
 const COLUMN_SPINNING_DURATION = 0.3;
-const MIN_BET = 10;
-const DEFAULT_COINS = 100;
-const DEFAULT_BET = 10;
+const MIN_BET = 50;
+const DEFAULT_COINS = 1000;
+const DEFAULT_BET = 1000;
 
 // =====================
 // TEXTS (UI)
