@@ -7,6 +7,9 @@
     <!-- FAVICON -->
     <link rel="icon" type="image/png" href="assets/faction.png">
 
+    <!-- Telegram WebApp -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -49,7 +52,7 @@
                     <div class="outer-col"><div class="col"></div></div>
                     <div class="outer-col"><div class="col"></div></div>
                     <div class="outer-col"><div class="col"></div></div>
-                    
+
                 </div>
 
                 <div class="slot-glow"></div>
@@ -136,8 +139,25 @@
 
 </div>
 
-<!-- Bootstrap JS (for dropdown) -->
+<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Telegram init -->
+<script>
+    const tg = window.Telegram?.WebApp;
+
+    if (tg) {
+        tg.expand();
+
+        const user = tg.initDataUnsafe?.user;
+
+        if (user) {
+            const name = user.first_name || user.username || "User";
+            const el = document.querySelector(".player-name");
+            if (el) el.textContent = name;
+        }
+    }
+</script>
 
 </body>
 </html>
