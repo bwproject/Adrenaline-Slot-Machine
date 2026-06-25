@@ -4,83 +4,118 @@
     <meta charset="UTF-8">
     <title>Adrenaline Slot Machine</title>
 
+    <!-- FAVICON -->
+    <link rel="icon" type="image/png" href="assets/faction.png">
+
+    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- FontAwesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
+    <!-- Styles -->
     <link rel="stylesheet" href="./style.css">
+
+    <!-- Script -->
     <script src="./script.js" defer></script>
 </head>
+
 <body>
 
-<div id="app">
+<div id="app" class="game-app">
 
-    <audio id="spinSound" src="assets/spin.mp3" preload="auto"></audio>
+    <!-- ================= HEADER ================= -->
+    <header class="game-header">
+        <div class="brand">
+            <h1 class="title">ADRENALINE SLOT MACHINE</h1>
+            <p class="subtitle">High risk • High reward • Pure chaos</p>
+        </div>
 
-    <div class="app-header">
-        <div class="title">ADRENALINE SLOT MACHINE</div>
         <div class="paytable">
-            ❌ 1 match = -2x bet | 😐 2 matches = -0.5x | 😶 3 matches = 0 | 🔥 4 matches = +0.5x | 💥 5 matches = +2x
+            ❌ 1 match = -2x | 😐 2 = -0.5x | 😶 3 = 0 | 🔥 4 = +0.5x | 💥 5 = +2x
         </div>
-    </div>
+    </header>
 
-    <div class="app-slot">
-        <div class="window-border">
-            <div class="window">
-                <div class="outer-spacer"></div>
+    <!-- ================= GAME AREA ================= -->
+    <main class="game-main">
 
-                <div class="outer-col"><div class="col"></div></div>
-                <div class="outer-spacer"></div>
+        <section class="slot-container">
 
-                <div class="outer-col"><div class="col"></div></div>
-                <div class="outer-spacer"></div>
+            <div class="slot-frame">
+                <div class="slot-window">
 
-                <div class="outer-col"><div class="col"></div></div>
-                <div class="outer-spacer"></div>
+                    <div class="outer-col"><div class="col"></div></div>
+                    <div class="outer-col"><div class="col"></div></div>
+                    <div class="outer-col"><div class="col"></div></div>
+                    <div class="outer-col"><div class="col"></div></div>
+                    <div class="outer-col"><div class="col"></div></div>
 
-                <div class="outer-col"><div class="col"></div></div>
-                <div class="outer-spacer"></div>
+                </div>
 
-                <div class="outer-col"><div class="col"></div></div>
+                <!-- декоративное свечение -->
+                <div class="slot-glow"></div>
 
-                <div class="outer-spacer"></div>
             </div>
-        </div>
-    </div>
 
-    <div class="app-controls" id="controlsArea">
+        </section>
 
-        <div class="controls-left">
+        <!-- RESULT OVERLAY -->
+        <div id="resultArea" class="result-overlay"></div>
 
-            <button onclick="spin(this)" class="btn btn-warning btn-lg start-button">Крутить</button>
+    </main>
 
-            <!-- BET MOVED HERE -->
-            <div class="bet-panel" style="margin-top:10px;">
-                Ставка: <span id="betValue">10</span>
-                <div>
-                    <button class="btn btn-sm btn-dark" onclick="changeBet(-10)">-</button>
-                    <button class="btn btn-sm btn-dark" onclick="changeBet(10)">+</button>
+    <!-- ================= FOOTER ================= -->
+    <footer class="game-footer">
+
+        <!-- CONTROLS -->
+        <div class="controls">
+
+            <button onclick="spin(this)" class="btn btn-warning btn-lg start-button spin-btn">
+                <i class="fa-solid fa-dice"></i> SPIN
+            </button>
+
+            <div class="bet-panel">
+                <div class="label">BET</div>
+                <div class="value">
+                    <span id="betValue">10</span>
+                </div>
+
+                <div class="bet-actions">
+                    <button class="btn btn-dark btn-sm" onclick="changeBet(-10)">-</button>
+                    <button class="btn btn-dark btn-sm" onclick="changeBet(10)">+</button>
                 </div>
             </div>
 
-            <!-- SOUND DROPDOWN -->
-            <div style="margin-top:10px;">
+            <div class="sound-panel">
                 <select class="form-select form-select-sm" onchange="setSound(this.value)">
-                    <option value="random">Random</option>
-                    <option value="sound1">Slot Machine</option>
+                    <option value="random">Random sound</option>
+                    <option value="sound1">Machine</option>
                     <option value="sound2">OIIA OIIA</option>
                 </select>
             </div>
 
         </div>
 
-        <div class="player-panel">
-            <div>Игрок: User</div>
-            <div>Монет: <span id="coins">100</span></div>
-        </div>
+        <!-- PLAYER STATS -->
+        <aside class="player-panel">
 
-        <div id="resultArea"></div>
+            <div class="player-info">
+                <i class="fa-solid fa-user"></i>
+                <span class="player-name">User</span>
+            </div>
 
-    </div>
+            <div class="coins-info">
+                <i class="fa-solid fa-coins"></i>
+                <span id="coins">100</span>
+            </div>
+
+            <div class="stats-box">
+                <div id="statsContent"></div>
+            </div>
+
+        </aside>
+
+    </footer>
 
 </div>
 
