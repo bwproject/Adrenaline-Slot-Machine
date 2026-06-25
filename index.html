@@ -52,7 +52,7 @@
 
                 </div>
 
-                <!-- декоративное свечение -->
+                <!-- decorative glow -->
                 <div class="slot-glow"></div>
 
             </div>
@@ -70,21 +70,17 @@
         <!-- CONTROLS -->
         <div class="controls">
 
+            <div class="bet-control">
+                <button class="bet-btn" onclick="changeBet(-10)">-</button>
+                <div class="bet-value">
+                    BET: <span id="betValue">10</span>
+                </div>
+                <button class="bet-btn" onclick="changeBet(10)">+</button>
+            </div>
+
             <button onclick="spin(this)" class="btn btn-warning btn-lg start-button spin-btn">
                 <i class="fa-solid fa-dice"></i> SPIN
             </button>
-
-            <div class="bet-panel">
-                <div class="label">BET</div>
-                <div class="value">
-                    <span id="betValue">10</span>
-                </div>
-
-                <div class="bet-actions">
-                    <button class="btn btn-dark btn-sm" onclick="changeBet(-10)">-</button>
-                    <button class="btn btn-dark btn-sm" onclick="changeBet(10)">+</button>
-                </div>
-            </div>
 
             <div class="sound-panel">
                 <select class="form-select form-select-sm" onchange="setSound(this.value)">
