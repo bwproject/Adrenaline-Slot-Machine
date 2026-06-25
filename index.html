@@ -65,33 +65,30 @@
     <!-- ================= FOOTER ================= -->
     <footer class="game-footer">
 
-        <!-- CONTROLS -->
+        <!-- CONTROLS BLOCK -->
         <div class="controls" style="display:flex; flex-direction:column; gap:10px; align-items:center;">
 
-            <!-- BET DISPLAY (NEW) -->
-            <div>
-                <button class="btn btn-warning btn-lg"
-                        style="min-width:220px; font-weight:bold;">
-                    💰 BET: <span id="betValue">10</span>
-                </button>
-            </div>
+            <!-- BET DISPLAY -->
+            <button class="btn btn-warning btn-lg" style="min-width:220px; font-weight:bold;">
+                💰 BET: <span id="betValue">10</span>
+            </button>
 
             <!-- BUTTON ROW -->
             <div style="display:flex; gap:15px; align-items:center;">
 
-                <button class="btn btn-warning btn-lg bet-btn"
+                <button class="btn btn-warning btn-lg"
                         onclick="changeBet(-10)"
                         style="min-width:140px;">
                     - BET
                 </button>
 
                 <button onclick="spin(this)"
-                        class="btn btn-warning btn-lg spin-btn"
+                        class="btn btn-warning btn-lg"
                         style="min-width:160px;">
                     <i class="fa-solid fa-dice"></i> SPIN
                 </button>
 
-                <button class="btn btn-warning btn-lg bet-btn"
+                <button class="btn btn-warning btn-lg"
                         onclick="changeBet(10)"
                         style="min-width:140px;">
                     BET +
@@ -100,40 +97,47 @@
             </div>
 
             <!-- SOUND SELECTOR -->
-            <div>
-                <select class="form-select form-select-sm"
-                        onchange="setSound(this.value)"
-                        style="min-width:220px; text-align:center;">
-                    <option value="random">🎲 Random sound</option>
-                    <option value="sound1">🎰 Machine</option>
-                    <option value="sound2">🔥 OIIA OIIA</option>
-                </select>
+            <div class="dropdown">
+
+                <button class="btn btn-warning btn-lg dropdown-toggle"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        style="min-width:220px; font-weight:bold;">
+                    🔊 SOUND: RANDOM
+                </button>
+
+                <ul class="dropdown-menu text-center" style="min-width:220px;">
+                    <li><button class="dropdown-item" onclick="setSound('random')">🎲 Random sound</button></li>
+                    <li><button class="dropdown-item" onclick="setSound('sound1')">🎰 Machine</button></li>
+                    <li><button class="dropdown-item" onclick="setSound('sound2')">🔥 OIIA OIIA</button></li>
+                </ul>
+
+            </div>
+
+            <!-- DIVIDER -->
+            <hr style="width:100%; border:2px solid #ff9800; opacity:0.6; margin:10px 0;">
+
+            <!-- PLAYER BAR -->
+            <div style="display:flex; gap:15px; justify-content:center; align-items:center;">
+
+                <button class="btn btn-warning btn-lg" style="min-width:200px; font-weight:bold;">
+                    🧑 Player: <span class="player-name">User</span>
+                </button>
+
+                <button class="btn btn-warning btn-lg" style="min-width:200px; font-weight:bold;">
+                    🪙 Coins: <span id="coins">100</span>
+                </button>
+
             </div>
 
         </div>
 
-        <!-- PLAYER STATS -->
-        <aside class="player-panel">
-
-            <div class="player-info">
-                <i class="fa-solid fa-user"></i>
-                <span class="player-name">User</span>
-            </div>
-
-            <div class="coins-info">
-                <i class="fa-solid fa-coins"></i>
-                <span id="coins">100</span>
-            </div>
-
-            <div class="stats-box">
-                <div id="statsContent"></div>
-            </div>
-
-        </aside>
-
     </footer>
 
 </div>
+
+<!-- Bootstrap JS (for dropdown) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
