@@ -1,7 +1,6 @@
 # Adrenaline-Slot-Machine
 
 Adrenaline Slot Machine — это браузерная игра-слот машина, написанная на чистом JavaScript, HTML и CSS.
-Это не казино - просто игра без баланса
 
 ## 🎰 Описание
 
