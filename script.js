@@ -21,7 +21,7 @@ const TEXTS = {
     betLabel: "Ставка:",
     playerLabel: "Игрок: User",
     coinsLabel: "Монет:",
-    tryAgain: "Try Again"
+    tryAgain: "Додеп ?"
 };
 
 // =====================
